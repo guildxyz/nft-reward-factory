@@ -25,6 +25,29 @@ Returns true if the address has already claimed their token.
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `claimed` | bool | Whether the address has claimed their token. |
+### hasTheUserIdClaimed
+
+```solidity
+function hasTheUserIdClaimed(
+    uint256 userId
+) external returns (bool claimed)
+```
+
+Whether a userId has minted a token.
+
+Used to prevent double mints in the same block.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `userId` | uint256 | The id of the user on Guild. |
+
+#### Return Values
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `claimed` | bool | Whether the userId has claimed any tokens. |
 ### validSigner
 
 ```solidity
@@ -42,6 +65,7 @@ function validSigner() external returns (address signer)
 function claim(
     address payToken,
     address receiver,
+    uint256 userId,
     bytes signature
 ) external
 ```
@@ -56,13 +80,16 @@ The contract needs to be approved if ERC20 tokens are used.
 | :--- | :--- | :---------- |
 | `payToken` | address | The address of the token that's used for paying the minting fees. 0 for ether. |
 | `receiver` | address | The address that receives the token. |
-| `signature` | bytes | The following signed by validSigner: receiver, chainId, the contract's address. |
+| `userId` | uint256 | The id of the user on Guild. |
+| `signature` | bytes | The following signed by validSigner: receiver, userId, chainId, the contract's address. |
 
 ### burn
 
 ```solidity
 function burn(
-    uint256 tokenId
+    uint256 tokenId,
+    uint256 userId,
+    bytes signature
 ) external
 ```
 
@@ -73,6 +100,8 @@ Burns a token from the sender.
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `tokenId` | uint256 | The id of the token to burn. |
+| `userId` | uint256 | The id of the user on Guild. |
+| `signature` | bytes | The following signed by validSigner: receiver, userId, chainId, the contract's address. |
 
 ### updateTokenURI
 
