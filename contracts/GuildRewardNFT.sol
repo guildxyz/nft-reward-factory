@@ -28,8 +28,10 @@ contract GuildRewardNFT is
     /// @notice The cid for tokenURI.
     string internal cid;
 
+    mapping(uint256 userId => uint256 claimed) internal claimedTokens;
+
     /// @notice Empty space reserved for future updates.
-    uint256[48] private __gap;
+    uint256[47] private __gap;
 
     /// @notice Sets metadata and the associated addresses.
     /// @param name The name of the token.
@@ -52,14 +54,16 @@ contract GuildRewardNFT is
         __TreasuryManager_init(treasury);
     }
 
-    function claim(address payToken, address receiver, bytes calldata signature) external payable {
-        if (balanceOf(receiver) > 0) revert AlreadyClaimed();
-        if (!isValidSignature(receiver, signature)) revert IncorrectSignature();
+    function claim(address payToken, address receiver, uint256 userId, bytes calldata signature) external payable {
+        if (balanceOf(receiver) > 0 || claimedTokens[userId] > 0) revert AlreadyClaimed();
+        if (!isValidSignature(receiver, userId, signature)) revert IncorrectSignature();
 
         uint256 tokenId = totalSupply();
 
         uint256 fee = fee[payToken];
         if (fee == 0) revert IncorrectPayToken(payToken);
+
+        claimedTokens[userId]++;
 
         // Fee collection
         // When there is no msg.value, try transferring ERC20
@@ -73,8 +77,12 @@ contract GuildRewardNFT is
         emit Claimed(receiver, tokenId);
     }
 
-    function burn(uint256 tokenId) external {
+    function burn(uint256 tokenId, uint256 userId, bytes calldata signature) external {
         if (msg.sender != ownerOf(tokenId)) revert IncorrectSender();
+        if (!isValidSignature(msg.sender, userId, signature)) revert IncorrectSignature();
+
+        claimedTokens[userId]--;
+
         _burn(tokenId);
     }
 
@@ -92,6 +100,10 @@ contract GuildRewardNFT is
         return balanceOf(account) > 0;
     }
 
+    function hasTheUserIdClaimed(uint256 userId) external view returns (bool claimed) {
+        return claimedTokens[userId] > 0;
+    }
+
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         if (!_exists(tokenId)) revert NonExistentToken(tokenId);
 
@@ -102,9 +114,10 @@ contract GuildRewardNFT is
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /// @notice Checks the validity of the signature for the given params.
-    function isValidSignature(address receiver, bytes calldata signature) internal view returns (bool) {
+    function isValidSignature(address receiver, uint256 userId, bytes calldata signature) internal view returns (bool) {
         if (signature.length != 65) revert IncorrectSignature();
-        bytes32 message = keccak256(abi.encode(receiver, block.chainid, address(this))).toEthSignedMessageHash();
+        bytes32 message = keccak256(abi.encode(receiver, userId, block.chainid, address(this)))
+            .toEthSignedMessageHash();
         return message.recover(signature) == validSigner;
     }
 }

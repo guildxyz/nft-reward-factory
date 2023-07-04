@@ -21,16 +21,18 @@ let treasury: SignerWithAddress;
 let signer: SignerWithAddress;
 
 let chainId: BigNumberish;
+const sampleUserId = 42;
 
 const createSignature = async (
   wallet: SignerWithAddress,
   receiver: string,
+  userId: number,
   chainid: BigNumberish,
   nftAddress: string
 ) => {
   const payload = ethers.AbiCoder.defaultAbiCoder().encode(
-    ["address", "uint256", "address"],
-    [receiver, chainid, nftAddress]
+    ["address", "uint256", "uint256", "address"],
+    [receiver, userId, chainid, nftAddress]
   );
   const payloadHash = ethers.keccak256(payload);
   return wallet.signMessage(ethers.getBytes(payloadHash));
@@ -150,28 +152,37 @@ describe("GuildRewardNFT", () => {
     let sampleSignature: string;
 
     beforeEach("create signature", async () => {
-      sampleSignature = await createSignature(signer, wallet0.address, chainId, await nft.getAddress());
+      sampleSignature = await createSignature(signer, wallet0.address, sampleUserId, chainId, await nft.getAddress());
     });
 
     context("#claim", () => {
       it("should revert if the address has already claimed", async () => {
-        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, {
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
           value: fee
         });
         await expect(
-          nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, { value: fee })
+          nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, { value: fee })
+        ).to.be.revertedWithCustomError(nft, "AlreadyClaimed");
+      });
+
+      it("should revert if the userId has already claimed", async () => {
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
+          value: fee
+        });
+        await expect(
+          nft.claim(ethers.ZeroAddress, randomWallet.address, sampleUserId, sampleSignature, { value: fee })
         ).to.be.revertedWithCustomError(nft, "AlreadyClaimed");
       });
 
       it("should revert if the signature is incorrect", async () => {
         await expect(
-          nft.claim(ethers.ZeroAddress, wallet0.address, ethers.ZeroHash, {
+          nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, ethers.ZeroHash, {
             value: fee
           })
         ).to.be.revertedWithCustomError(nft, "IncorrectSignature");
 
         await expect(
-          nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature.slice(0, -2), {
+          nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature.slice(0, -2), {
             value: fee
           })
         ).to.be.revertedWithCustomError(nft, "IncorrectSignature");
@@ -180,7 +191,8 @@ describe("GuildRewardNFT", () => {
           nft.claim(
             ethers.ZeroAddress,
             wallet0.address,
-            await createSignature(signer, randomWallet.address, chainId, await nft.getAddress()),
+            sampleUserId,
+            await createSignature(signer, randomWallet.address, sampleUserId, chainId, await nft.getAddress()),
             {
               value: fee
             }
@@ -189,14 +201,14 @@ describe("GuildRewardNFT", () => {
       });
 
       it("should revert if the token has no fees set", async () => {
-        await expect(nft.claim(randomWallet.address, wallet0.address, sampleSignature))
+        await expect(nft.claim(randomWallet.address, wallet0.address, sampleUserId, sampleSignature))
           .to.be.revertedWithCustomError(nft, "IncorrectPayToken")
           .withArgs(randomWallet.address);
       });
 
       it("should increment the total supply", async () => {
         const totalSupply0 = await nft.totalSupply();
-        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, {
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
           value: fee
         });
         const totalSupply1 = await nft.totalSupply();
@@ -204,10 +216,23 @@ describe("GuildRewardNFT", () => {
       });
 
       it("should set the address's claim status", async () => {
-        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, {
+        const hasClaimed0 = await nft.hasClaimed(wallet0.address);
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
           value: fee
         });
-        expect(await nft.hasClaimed(wallet0.address)).to.eq(true);
+        const hasClaimed1 = await nft.hasClaimed(wallet0.address);
+        expect(hasClaimed0).to.eq(false);
+        expect(hasClaimed1).to.eq(true);
+      });
+
+      it("should set the userId's claim status", async () => {
+        const hasTheUserIdClaimed0 = await nft.hasTheUserIdClaimed(sampleUserId);
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
+          value: fee
+        });
+        const hasTheUserIdClaimed1 = await nft.hasTheUserIdClaimed(sampleUserId);
+        expect(hasTheUserIdClaimed0).to.eq(false);
+        expect(hasTheUserIdClaimed1).to.eq(true);
       });
 
       it("should revert when an ERC20 transfer silently fails", async () => {
@@ -217,14 +242,14 @@ describe("GuildRewardNFT", () => {
         await mockBadERC20.approve(nft, ethers.MaxUint256);
         await nft.setFee(mockBadERC20, fee);
 
-        await expect(nft.claim(mockBadERC20, wallet0.address, sampleSignature))
+        await expect(nft.claim(mockBadERC20, wallet0.address, sampleUserId, sampleSignature))
           .to.be.revertedWithCustomError(nft, "TransferFailed")
           .withArgs(wallet0.address, await nft.getAddress());
       });
 
       it("should transfer ERC20 when there is no msg.value", async () => {
         await mockERC20.approve(nft, ethers.MaxUint256);
-        await expect(nft.claim(mockERC20, wallet0.address, sampleSignature)).to.changeTokenBalances(
+        await expect(nft.claim(mockERC20, wallet0.address, sampleUserId, sampleSignature)).to.changeTokenBalances(
           mockERC20,
           [wallet0, treasury],
           [-fee, fee]
@@ -233,7 +258,7 @@ describe("GuildRewardNFT", () => {
 
       it("should revert if an incorrect msg.value is received", async () => {
         await expect(
-          nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, {
+          nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
             value: fee * 2n
           })
         )
@@ -241,7 +266,7 @@ describe("GuildRewardNFT", () => {
           .withArgs(fee * 2n, fee);
 
         await expect(
-          nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, {
+          nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
             value: fee * 2n
           })
         )
@@ -251,7 +276,7 @@ describe("GuildRewardNFT", () => {
 
       it("should transfer ether to treasury", async () => {
         await expect(
-          nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, { value: fee })
+          nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, { value: fee })
         ).to.changeEtherBalances([wallet0, treasury], [-fee, fee]);
       });
 
@@ -260,7 +285,7 @@ describe("GuildRewardNFT", () => {
         const tokenId = totalSupply;
         expect(await nft.balanceOf(wallet0.address)).to.eq(0);
         await expect(nft.ownerOf(tokenId)).to.be.revertedWith("ERC721: invalid token ID");
-        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, {
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
           value: fee
         });
         expect(await nft.balanceOf(wallet0.address)).to.eq(1);
@@ -268,7 +293,7 @@ describe("GuildRewardNFT", () => {
       });
 
       it("should emit Claimed event", async () => {
-        await expect(nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, { value: fee }))
+        await expect(nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, { value: fee }))
           .to.emit(nft, "Claimed")
           .withArgs(wallet0.address, 0);
       });
@@ -276,35 +301,62 @@ describe("GuildRewardNFT", () => {
 
     context("#burn", () => {
       beforeEach("claim a token", async () => {
-        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleSignature, {
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, sampleSignature, {
           value: fee
         });
       });
 
       it("should revert if a token is attempted to be burned by anyone but it's owner", async () => {
-        await expect((nft.connect(randomWallet) as Contract).burn(0)).to.be.revertedWithCustomError(
+        await expect(
+          (nft.connect(randomWallet) as Contract).burn(0, sampleUserId, sampleSignature)
+        ).to.be.revertedWithCustomError(nft, "IncorrectSender");
+      });
+
+      it("should revert if the signature is incorrect", async () => {
+        await expect(nft.burn(0, sampleUserId, ethers.ZeroHash)).to.be.revertedWithCustomError(
           nft,
-          "IncorrectSender"
+          "IncorrectSignature"
         );
+
+        await expect(nft.burn(0, sampleUserId, sampleSignature.slice(0, -2))).to.be.revertedWithCustomError(
+          nft,
+          "IncorrectSignature"
+        );
+
+        await expect(
+          nft.burn(
+            0,
+            sampleUserId,
+            await createSignature(signer, randomWallet.address, sampleUserId, chainId, await nft.getAddress())
+          )
+        ).to.be.revertedWithCustomError(nft, "IncorrectSignature");
       });
 
       it("should reset hasClaimed to false", async () => {
         const hasClaimed0 = await nft.hasClaimed(wallet0.address);
-        await nft.burn(0);
+        await nft.burn(0, sampleUserId, sampleSignature);
         const hasClaimed1 = await nft.hasClaimed(wallet0.address);
         expect(hasClaimed0).to.eq(true);
         expect(hasClaimed1).to.eq(false);
       });
 
+      it("should reset hasTheUserIdClaimed to false", async () => {
+        const hasTheUserIdClaimed0 = await nft.hasTheUserIdClaimed(sampleUserId);
+        await nft.burn(0, sampleUserId, sampleSignature);
+        const hasTheUserIdClaimed1 = await nft.hasTheUserIdClaimed(sampleUserId);
+        expect(hasTheUserIdClaimed0).to.eq(true);
+        expect(hasTheUserIdClaimed1).to.eq(false);
+      });
+
       it("should decrement the total supply", async () => {
         const totalSupply0 = await nft.totalSupply();
-        await nft.burn(0);
+        await nft.burn(0, sampleUserId, sampleSignature);
         const totalSupply1 = await nft.totalSupply();
         expect(totalSupply1).to.eq(totalSupply0 - 1n);
       });
 
       it("should burn the token", async () => {
-        await expect(nft.burn(0)).to.changeTokenBalance(nft, wallet0, -1);
+        await expect(nft.burn(0, sampleUserId, sampleSignature)).to.changeTokenBalance(nft, wallet0, -1);
       });
     });
   });
@@ -313,7 +365,7 @@ describe("GuildRewardNFT", () => {
     let signature: string;
 
     beforeEach("create signature, set strings", async () => {
-      signature = await createSignature(signer, wallet0.address, chainId, await nft.getAddress());
+      signature = await createSignature(signer, wallet0.address, sampleUserId, chainId, await nft.getAddress());
     });
 
     context("#tokenURI", () => {
@@ -322,7 +374,7 @@ describe("GuildRewardNFT", () => {
       });
 
       it("should return the correct tokenURI", async () => {
-        await nft.claim(ethers.ZeroAddress, wallet0.address, signature, {
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, signature, {
           value: fee
         });
 
@@ -334,7 +386,7 @@ describe("GuildRewardNFT", () => {
 
     context("#updateTokenURI", () => {
       beforeEach("claim a token", async () => {
-        await nft.claim(ethers.ZeroAddress, wallet0.address, signature, { value: fee });
+        await nft.claim(ethers.ZeroAddress, wallet0.address, sampleUserId, signature, { value: fee });
       });
 
       it("should revert if the cid is attempted to be changed by anyone but the owner", async () => {

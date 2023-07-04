@@ -8,6 +8,12 @@ interface IGuildRewardNFT {
     /// @return claimed Whether the address has claimed their token.
     function hasClaimed(address account) external view returns (bool claimed);
 
+    /// @notice Whether a userId has minted a token.
+    /// @dev Used to prevent double mints in the same block.
+    /// @param userId The id of the user on Guild.
+    /// @return claimed Whether the userId has claimed any tokens.
+    function hasTheUserIdClaimed(uint256 userId) external view returns (bool claimed);
+
     /// @return signer The address that signs the metadata.
     function validSigner() external view returns (address signer);
 
@@ -15,12 +21,15 @@ interface IGuildRewardNFT {
     /// @dev The contract needs to be approved if ERC20 tokens are used.
     /// @param payToken The address of the token that's used for paying the minting fees. 0 for ether.
     /// @param receiver The address that receives the token.
-    /// @param signature The following signed by validSigner: receiver, chainId, the contract's address.
-    function claim(address payToken, address receiver, bytes calldata signature) external payable;
+    /// @param userId The id of the user on Guild.
+    /// @param signature The following signed by validSigner: receiver, userId, chainId, the contract's address.
+    function claim(address payToken, address receiver, uint256 userId, bytes calldata signature) external payable;
 
     /// @notice Burns a token from the sender.
     /// @param tokenId The id of the token to burn.
-    function burn(uint256 tokenId) external;
+    /// @param userId The id of the user on Guild.
+    /// @param signature The following signed by validSigner: receiver, userId, chainId, the contract's address.
+    function burn(uint256 tokenId, uint256 userId, bytes calldata signature) external;
 
     /// @notice Updates the cid for tokenURI.
     /// @dev Only callable by the owner.
