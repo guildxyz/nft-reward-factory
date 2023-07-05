@@ -29,6 +29,8 @@ The cid for tokenURI.
 mapping(uint256 => uint256) claimedTokens
 ```
 
+The number of claimed tokens by userIds.
+
 ## Functions
 
 ### initialize

@@ -28,6 +28,7 @@ contract GuildRewardNFT is
     /// @notice The cid for tokenURI.
     string internal cid;
 
+    /// @notice The number of claimed tokens by userIds.
     mapping(uint256 userId => uint256 claimed) internal claimedTokens;
 
     /// @notice Empty space reserved for future updates.
