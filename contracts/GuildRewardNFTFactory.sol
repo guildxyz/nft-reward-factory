@@ -13,12 +13,6 @@ contract GuildRewardNFTFactory is IGuildRewardNFTFactory, Initializable, Ownable
     /// @notice Empty space reserved for future updates.
     uint256[49] private __gap;
 
-    /// @notice Initializes the contract.
-    // solhint-disable-next-line func-name-mixedcase
-    function __GuildRewardNFTFactory_init() public onlyInitializing {
-        // __Ownable_init();
-    }
-
     // TODO: set NFT name, symbol etc
     function clone(string calldata urlName) external {
         // TODO: make sure to only call this when directly calling the entry proxy
