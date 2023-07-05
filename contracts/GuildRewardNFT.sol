@@ -35,17 +35,11 @@ contract GuildRewardNFT is
     /// @notice Empty space reserved for future updates.
     uint256[47] private __gap;
 
-    /// @notice Sets metadata and the associated addresses.
-    /// @param name The name of the token.
-    /// @param symbol The symbol of the token.
-    /// @param treasury The address where the collected fees will be sent.
-    /// @param _validSigner The address that should sign the parameters for certain functions.
-    /// @param _cid The cid used to construct the tokenURI for the token to be minted.
     function initialize(
         string memory name,
         string memory symbol,
         address payable treasury,
-        address payable _validSigner,
+        address _validSigner,
         string calldata _cid
     ) public initializer {
         validSigner = _validSigner;
@@ -54,7 +48,6 @@ contract GuildRewardNFT is
         __UUPSUpgradeable_init();
         __SoulboundERC721_init(name, symbol);
         __TreasuryManager_init(treasury);
-        __GuildRewardNFTFactory_init();
     }
 
     function claim(address payToken, address receiver, uint256 userId, bytes calldata signature) external payable {

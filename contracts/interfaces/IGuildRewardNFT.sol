@@ -17,6 +17,21 @@ interface IGuildRewardNFT {
     /// @return signer The address that signs the metadata.
     function validSigner() external view returns (address signer);
 
+    /// @notice Sets metadata and the associated addresses.
+    /// @dev Initializer function callable only once.
+    /// @param name The name of the token.
+    /// @param symbol The symbol of the token.
+    /// @param treasury The address where the collected fees will be sent.
+    /// @param _validSigner The address that should sign the parameters for certain functions.
+    /// @param _cid The cid used to construct the tokenURI for the token to be minted.
+    function initialize(
+        string memory name,
+        string memory symbol,
+        address payable treasury,
+        address _validSigner,
+        string calldata _cid
+    ) external;
+
     /// @notice Claims tokens to the given address.
     /// @dev The contract needs to be approved if ERC20 tokens are used.
     /// @param payToken The address of the token that's used for paying the minting fees. 0 for ether.
