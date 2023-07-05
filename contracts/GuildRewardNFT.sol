@@ -2,6 +2,7 @@
 pragma solidity 0.8.19;
 
 import { IGuildRewardNFT } from "./interfaces/IGuildRewardNFT.sol";
+import { GuildRewardNFTFactory } from "./GuildRewardNFTFactory.sol";
 import { LibTransfer } from "./lib/LibTransfer.sol";
 import { SoulboundERC721 } from "./token/SoulboundERC721.sol";
 import { TreasuryManager } from "./utils/TreasuryManager.sol";
@@ -17,7 +18,8 @@ contract GuildRewardNFT is
     OwnableUpgradeable,
     UUPSUpgradeable,
     SoulboundERC721,
-    TreasuryManager
+    TreasuryManager,
+    GuildRewardNFTFactory
 {
     using ECDSAUpgradeable for bytes32;
     using LibTransfer for address;
@@ -52,6 +54,7 @@ contract GuildRewardNFT is
         __UUPSUpgradeable_init();
         __SoulboundERC721_init(name, symbol);
         __TreasuryManager_init(treasury);
+        __GuildRewardNFTFactory_init();
     }
 
     function claim(address payToken, address receiver, uint256 userId, bytes calldata signature) external payable {
