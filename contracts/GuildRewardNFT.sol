@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 import { IGuildRewardNFT } from "./interfaces/IGuildRewardNFT.sol";
-import { GuildRewardNFTFactory } from "./GuildRewardNFTFactory.sol";
 import { LibTransfer } from "./lib/LibTransfer.sol";
 import { SoulboundERC721 } from "./token/SoulboundERC721.sol";
 import { TreasuryManager } from "./utils/TreasuryManager.sol";
@@ -18,36 +17,40 @@ contract GuildRewardNFT is
     OwnableUpgradeable,
     UUPSUpgradeable,
     SoulboundERC721,
-    TreasuryManager,
-    GuildRewardNFTFactory
+    TreasuryManager
 {
     using ECDSAUpgradeable for bytes32;
     using LibTransfer for address;
     using LibTransfer for address payable;
 
-    address public validSigner;
+    address internal validSignerAddress;
 
     /// @notice The cid for tokenURI.
     string internal cid;
 
     mapping(uint256 userId => uint256 claimed) internal claimedTokens;
 
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
+    address public immutable factoryProxy;
+
     /// @notice Empty space reserved for future updates.
     uint256[47] private __gap;
 
-    function initialize(
-        string memory name,
-        string memory symbol,
-        address payable treasury,
-        address _validSigner,
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor(address factoryProxyAddress) {
+        factoryProxy = factoryProxyAddress;
+    }
+
+    // solhint-disable-next-line func-name-mixedcase
+    function __GuildRewardNFT_init(
+        string calldata name,
+        string calldata symbol,
         string calldata _cid
-    ) public initializer {
-        validSigner = _validSigner;
+    ) internal onlyInitializing {
         cid = _cid;
         __Ownable_init();
         __UUPSUpgradeable_init();
         __SoulboundERC721_init(name, symbol);
-        __TreasuryManager_init(treasury);
     }
 
     function claim(address payToken, address receiver, uint256 userId, bytes calldata signature) external payable {
@@ -83,7 +86,7 @@ contract GuildRewardNFT is
     }
 
     function setValidSigner(address newValidSigner) external onlyOwner {
-        validSigner = newValidSigner;
+        validSignerAddress = newValidSigner;
         emit ValidSignerChanged(newValidSigner);
     }
 
@@ -109,11 +112,15 @@ contract GuildRewardNFT is
     // solhint-disable-next-line no-empty-blocks
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
+    function validSigner() public view returns (address signer) {
+        return IGuildRewardNFT(factoryProxy).validSigner();
+    }
+
     /// @notice Checks the validity of the signature for the given params.
     function isValidSignature(address receiver, uint256 userId, bytes calldata signature) internal view returns (bool) {
         if (signature.length != 65) revert IncorrectSignature();
         bytes32 message = keccak256(abi.encode(receiver, userId, block.chainid, address(this)))
             .toEthSignedMessageHash();
-        return message.recover(signature) == validSigner;
+        return message.recover(signature) == validSigner();
     }
 }
