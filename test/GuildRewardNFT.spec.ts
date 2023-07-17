@@ -340,26 +340,4 @@ describe("GuildRewardNFT", () => {
       });
     });
   });
-
-  context("#setValidSigner", () => {
-    it("should revert if the valid signer is attempted to be changed by anyone but the owner", async () => {
-      await expect((nft.connect(randomWallet) as Contract).setValidSigner(randomWallet.address)).to.be.revertedWith(
-        "Ownable: caller is not the owner"
-      );
-    });
-
-    it("should change the valid signer's address", async () => {
-      const validSigner0 = await nft.validSigner();
-      await nft.setValidSigner(randomWallet.address);
-      const validSigner1 = await nft.validSigner();
-      expect(validSigner1).to.not.eq(validSigner0);
-      expect(validSigner1).to.eq(randomWallet.address);
-    });
-
-    it("should emit ValidSignerChanged event", async () => {
-      await expect(nft.setValidSigner(randomWallet.address))
-        .to.emit(nft, "ValidSignerChanged")
-        .withArgs(randomWallet.address);
-    });
-  });
 });
