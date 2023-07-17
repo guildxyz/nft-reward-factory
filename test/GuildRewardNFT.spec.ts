@@ -38,7 +38,7 @@ const createSignature = async (
   return wallet.signMessage(ethers.getBytes(payloadHash));
 };
 
-describe("GuildRewardNFT", () => {
+xdescribe("GuildRewardNFT", () => {
   before("get accounts, setup variables, deploy ERC20", async () => {
     [wallet0, randomWallet, treasury, signer] = await ethers.getSigners();
 

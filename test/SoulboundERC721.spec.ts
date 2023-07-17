@@ -22,13 +22,9 @@ describe("SoulboundERC721", () => {
 
   beforeEach("deploy contract", async () => {
     GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = await upgrades.deployProxy(
-      GuildRewardNFT,
-      ["SoulboundTestNFT", "SBT", randomWallet.address, randomWallet.address, "cid"],
-      {
-        kind: "uups"
-      }
-    );
+    nft = await upgrades.deployProxy(GuildRewardNFT, ["SoulboundTestNFT", "SBT", "cid", randomWallet.address], {
+      kind: "uups"
+    });
     await nft.waitForDeployment();
   });
 

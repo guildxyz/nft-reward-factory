@@ -5,31 +5,28 @@ import { ethers, upgrades } from "hardhat";
 
 // CONTRACTS
 let mockERC20: Contract;
-let GuildRewardNFT: ContractFactory;
+let GuildRewardNFTFactory: ContractFactory;
 let nft: Contract;
 
 // Test accounts
 let wallet0: SignerWithAddress;
 let randomWallet: SignerWithAddress;
 let treasury: SignerWithAddress;
+let signer: SignerWithAddress;
 
-describe("GuildRewardNFT", () => {
+describe("TreasuryManager", () => {
   before("get accounts, setup variables, deploy ERC20", async () => {
-    [wallet0, randomWallet, treasury] = await ethers.getSigners();
+    [wallet0, randomWallet, treasury, signer] = await ethers.getSigners();
 
     const ERC20 = await ethers.getContractFactory("MockERC20");
     mockERC20 = await ERC20.deploy("Mock Token", "MCK");
   });
 
   beforeEach("deploy contract", async () => {
-    GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = await upgrades.deployProxy(
-      GuildRewardNFT,
-      ["TreasuryManagerTestNFT", "TMT", treasury.address, randomWallet.address, "cid"],
-      {
-        kind: "uups"
-      }
-    );
+    GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
+    nft = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, signer.address], {
+      kind: "uups"
+    });
     await nft.waitForDeployment();
   });
 
@@ -39,7 +36,7 @@ describe("GuildRewardNFT", () => {
   });
 
   it("should be upgradeable", async () => {
-    const upgraded = await upgrades.upgradeProxy(nft, GuildRewardNFT, {
+    const upgraded = await upgrades.upgradeProxy(nft, GuildRewardNFTFactory, {
       kind: "uups"
       // call: { fn: "reInitialize", args: [] }
     });
