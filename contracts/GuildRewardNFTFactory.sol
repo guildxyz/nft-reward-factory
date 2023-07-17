@@ -1,41 +1,57 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import { GuildRewardNFT } from "./GuildRewardNFT.sol";
+import { IGuildRewardNFT } from "./interfaces/IGuildRewardNFT.sol";
 import { IGuildRewardNFTFactory } from "./interfaces/IGuildRewardNFTFactory.sol";
-import { ITreasuryManager } from "./interfaces/ITreasuryManager.sol";
+import { TreasuryManager } from "./utils/TreasuryManager.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { ClonesUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /// @title A simple factory deploying minimal proxy contracts for GuildRewardNFT.
-contract GuildRewardNFTFactory is IGuildRewardNFTFactory, GuildRewardNFT {
-    mapping(string urlName => address token) public deployedTokenContracts;
+contract GuildRewardNFTFactory is
+    IGuildRewardNFTFactory,
+    Initializable,
+    UUPSUpgradeable,
+    OwnableUpgradeable,
+    TreasuryManager
+{
+    address public nftImplementation;
+    address public validSigner;
+
+    mapping(uint256 guildId => address token) public deployedTokenContracts;
 
     /// @notice Empty space reserved for future updates.
-    uint256[49] private __gap;
+    uint256[47] private __gap;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
+    function initialize(address payable treasuryAddress, address validSignerAddress) public initializer {
+        validSigner = validSignerAddress;
+        __Ownable_init();
+        __TreasuryManager_init(treasuryAddress);
+    }
+
+    function clone(uint256 guildId, string calldata name, string calldata symbol, string calldata cid) external {
+        address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementation);
+        IGuildRewardNFT deployedClone = IGuildRewardNFT(deployedCloneAddress);
+
+        deployedClone.initialize(name, symbol, cid, address(this));
+
+        deployedTokenContracts[guildId] = deployedCloneAddress;
+
+        emit RewardNFTDeployed(guildId, deployedCloneAddress);
+    }
+
+    function setNFTImplementation(address newNFT) external onlyOwner {
+        nftImplementation = newNFT;
+        emit ImplementationChanged(newNFT);
+    }
+
+    function setValidSigner(address newValidSigner) external onlyOwner {
+        validSigner = newValidSigner;
+        emit ValidSignerChanged(newValidSigner);
+    }
+
     // solhint-disable-next-line no-empty-blocks
-    constructor() GuildRewardNFT(address(this)) {}
-
-    function initialize(string calldata name, string calldata symbol, string calldata cid) public initializer {
-        __GuildRewardNFT_init(name, symbol, cid);
-    }
-
-    function clone(
-        string calldata urlName,
-        string calldata name,
-        string calldata symbol,
-        string calldata cid
-    ) external {
-        // TODO: make sure to only call this when directly calling the entry proxy
-        address deployedCloneAddress = ClonesUpgradeable.clone(address(this));
-        IGuildRewardNFTFactory deployedClone = IGuildRewardNFTFactory(deployedCloneAddress);
-
-        deployedClone.initialize(name, symbol, cid);
-
-        deployedTokenContracts[urlName] = deployedCloneAddress;
-
-        emit RewardNFTDeployed(urlName, deployedCloneAddress);
-    }
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 }

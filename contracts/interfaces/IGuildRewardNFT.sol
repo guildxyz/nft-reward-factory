@@ -19,8 +19,18 @@ interface IGuildRewardNFT {
     /// @return claimed Whether the userId has claimed any tokens.
     function hasTheUserIdClaimed(uint256 userId) external view returns (bool claimed);
 
-    /// @return signer The address that signs the metadata.
-    function validSigner() external view returns (address signer);
+    /// @notice Sets metadata and the associated addresses.
+    /// @dev Initializer function callable only once.
+    /// @param name The name of the token.
+    /// @param symbol The symbol of the token.
+    /// @param cid The cid used to construct the tokenURI for the token to be minted.
+    /// @param factoryProxyAddress The address of the factory.
+    function initialize(
+        string memory name,
+        string memory symbol,
+        string calldata cid,
+        address factoryProxyAddress
+    ) external;
 
     /// @notice Claims tokens to the given address.
     /// @dev The contract needs to be approved if ERC20 tokens are used.
@@ -48,10 +58,6 @@ interface IGuildRewardNFT {
 
     /// @notice Event emitted whenever the cid is updated.
     event MetadataUpdate();
-
-    /// @notice Event emitted when the validSigner is changed.
-    /// @param newValidSigner The new address of validSigner.
-    event ValidSignerChanged(address newValidSigner);
 
     /// @notice Error thrown when the token is already claimed.
     error AlreadyClaimed();

@@ -14,6 +14,12 @@ contract TreasuryManager is ITreasuryManager, Initializable, OwnableUpgradeable 
     /// @notice Empty space reserved for future updates.
     uint256[48] private __gap;
 
+    /// @param treasury_ The address that will receive the fees.
+    // solhint-disable-next-line func-name-mixedcase
+    function __TreasuryManager_init(address payable treasury_) internal onlyInitializing {
+        treasury = treasury_;
+    }
+
     function setFee(address token, uint256 newFee) external onlyOwner {
         fee[token] = newFee;
         emit FeeChanged(token, newFee);
@@ -22,5 +28,9 @@ contract TreasuryManager is ITreasuryManager, Initializable, OwnableUpgradeable 
     function setTreasury(address payable newTreasury) external onlyOwner {
         treasury = newTreasury;
         emit TreasuryChanged(newTreasury);
+    }
+
+    function getFeeData(address payToken) external view returns (uint256 tokenFee, address payable treasuryAddress) {
+        return (fee[payToken], treasury);
     }
 }

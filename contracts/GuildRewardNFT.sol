@@ -2,9 +2,10 @@
 pragma solidity 0.8.19;
 
 import { IGuildRewardNFT } from "./interfaces/IGuildRewardNFT.sol";
+import { IGuildRewardNFTFactory } from "./interfaces/IGuildRewardNFTFactory.sol";
+import { ITreasuryManager } from "./interfaces/ITreasuryManager.sol";
 import { LibTransfer } from "./lib/LibTransfer.sol";
 import { SoulboundERC721 } from "./token/SoulboundERC721.sol";
-import { TreasuryManager } from "./utils/TreasuryManager.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -14,40 +15,33 @@ import { ECDSAUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/cryp
 contract GuildRewardNFT is
     IGuildRewardNFT,
     Initializable,
-    OwnableUpgradeable,
+    OwnableUpgradeable, // TODO: custom ownable
     UUPSUpgradeable,
-    SoulboundERC721,
-    TreasuryManager
+    SoulboundERC721
 {
     using ECDSAUpgradeable for bytes32;
     using LibTransfer for address;
     using LibTransfer for address payable;
 
-    address internal validSignerAddress;
+    address public factoryProxy;
 
     /// @notice The cid for tokenURI.
     string internal cid;
 
     mapping(uint256 userId => uint256 claimed) internal claimedTokens;
 
-    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
-    address public immutable factoryProxy;
-
     /// @notice Empty space reserved for future updates.
     uint256[47] private __gap;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(address factoryProxyAddress) {
-        factoryProxy = factoryProxyAddress;
-    }
-
     // solhint-disable-next-line func-name-mixedcase
-    function __GuildRewardNFT_init(
+    function initialize(
         string calldata name,
         string calldata symbol,
-        string calldata _cid
-    ) internal onlyInitializing {
+        string calldata _cid,
+        address factoryProxyAddress
+    ) public initializer {
         cid = _cid;
+        factoryProxy = factoryProxyAddress;
         __Ownable_init();
         __UUPSUpgradeable_init();
         __SoulboundERC721_init(name, symbol);
@@ -59,7 +53,8 @@ contract GuildRewardNFT is
 
         uint256 tokenId = totalSupply();
 
-        uint256 fee = fee[payToken];
+        (uint256 fee, address payable treasury) = ITreasuryManager(factoryProxy).getFeeData(payToken);
+
         if (fee == 0) revert IncorrectPayToken(payToken);
 
         claimedTokens[userId]++;
@@ -85,11 +80,6 @@ contract GuildRewardNFT is
         _burn(tokenId);
     }
 
-    function setValidSigner(address newValidSigner) external onlyOwner {
-        validSignerAddress = newValidSigner;
-        emit ValidSignerChanged(newValidSigner);
-    }
-
     function updateTokenURI(string calldata newCid) external onlyOwner {
         cid = newCid;
         emit MetadataUpdate();
@@ -113,7 +103,7 @@ contract GuildRewardNFT is
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function validSigner() public view returns (address signer) {
-        return IGuildRewardNFT(factoryProxy).validSigner();
+        return IGuildRewardNFTFactory(factoryProxy).validSigner();
     }
 
     /// @notice Checks the validity of the signature for the given params.

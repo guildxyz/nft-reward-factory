@@ -19,6 +19,12 @@ interface ITreasuryManager {
     /// @return fee The amount of the fee in base units.
     function fee(address token) external view returns (uint256 fee);
 
+    /// @notice Gets both the fee and the treasury address for optimization purposes.
+    /// @param payToken The token to get the fee for.
+    /// @return tokenFee The fee for the token in base units.
+    /// @return treasuryAddress The address of the treasury.
+    function getFeeData(address payToken) external view returns (uint256 tokenFee, address payable treasuryAddress);
+
     /// @notice Returns the address that receives the fees.
     function treasury() external view returns (address payable);
 
