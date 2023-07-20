@@ -20,7 +20,7 @@ contract GuildRewardNFTFactory is
     address public nftImplementation;
     address public validSigner;
 
-    mapping(uint256 guildId => address token) public deployedTokenContracts;
+    mapping(uint256 guildId => address[] tokens) internal deployedTokenContracts;
 
     /// @notice Empty space reserved for future updates.
     uint256[47] private __gap;
@@ -43,7 +43,7 @@ contract GuildRewardNFTFactory is
 
         deployedClone.initialize(name, symbol, cid, tokenOwner, address(this));
 
-        deployedTokenContracts[guildId] = deployedCloneAddress;
+        deployedTokenContracts[guildId].push(deployedCloneAddress);
 
         emit RewardNFTDeployed(guildId, deployedCloneAddress);
     }
@@ -56,6 +56,10 @@ contract GuildRewardNFTFactory is
     function setValidSigner(address newValidSigner) external onlyOwner {
         validSigner = newValidSigner;
         emit ValidSignerChanged(newValidSigner);
+    }
+
+    function getDeployedTokenContracts(uint256 guildId) external view returns (address[] memory tokens) {
+        return deployedTokenContracts[guildId];
     }
 
     // solhint-disable-next-line no-empty-blocks

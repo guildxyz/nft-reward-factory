@@ -58,8 +58,8 @@ describe("GuildRewardNFTFactory", () => {
 
   it("should deploy and initialize clones", async () => {
     await factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0], randomWallet.address);
-    const nftAddress = await factory.deployedTokenContracts(sampleGuildId);
-    const nft = new Contract(nftAddress, nftMain.interface, wallet0);
+    const nftAddresses = await factory.getDeployedTokenContracts(sampleGuildId);
+    const nft = new Contract(nftAddresses[0], nftMain.interface, wallet0);
     expect(await nft.name()).to.eq(sampleName);
     expect(await nft.symbol()).to.eq(sampleSymbol);
     expect(await nft.owner()).to.eq(randomWallet.address);

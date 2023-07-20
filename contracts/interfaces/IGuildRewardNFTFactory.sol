@@ -29,10 +29,10 @@ interface IGuildRewardNFTFactory {
         address tokenOwner
     ) external;
 
-    /// @notice Returns the reward NFT address for a guild.
-    /// @param guildId The id of the guild the NFT is deployed in.
-    /// @return token The address of the token.
-    function deployedTokenContracts(uint256 guildId) external view returns (address token);
+    /// @notice Returns the reward NFT addresses for a guild.
+    /// @param guildId The id of the guild the NFTs are deployed in.
+    /// @return tokens The addresses of the tokens deployed for guildId.
+    function getDeployedTokenContracts(uint256 guildId) external view returns (address[] memory tokens);
 
     /// @notice Sets the address that signs the metadata.
     /// @dev Callable only by the owner.
