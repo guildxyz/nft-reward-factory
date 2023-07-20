@@ -29,20 +29,8 @@ address validSigner
 ### deployedTokenContracts
 
 ```solidity
-mapping(uint256 => address) deployedTokenContracts
+mapping(uint256 => address[]) deployedTokenContracts
 ```
-
-Returns the reward NFT address for a guild.
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
 
 ## Functions
 
@@ -126,6 +114,27 @@ Callable only by the owner.
 | :--- | :--- | :---------- |
 | `newValidSigner` | address | The new address of validSigner. |
 
+### getDeployedTokenContracts
+
+```solidity
+function getDeployedTokenContracts(
+    uint256 guildId
+) external returns (address[] tokens)
+```
+
+Returns the reward NFT addresses for a guild.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `guildId` | uint256 | The id of the guild the NFTs are deployed in. |
+
+#### Return Values
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `tokens` | address[] | The addresses of the tokens deployed for guildId. |
 ### _authorizeUpgrade
 
 ```solidity

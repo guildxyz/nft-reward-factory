@@ -70,27 +70,27 @@ Deploys a minimal proxy for the NFT.
 | `cid` | string | The cid used to construct the tokenURI of the NFT to be created. |
 | `tokenOwner` | address | The address that will be the owner of the deployed token. |
 
-### deployedTokenContracts
+### getDeployedTokenContracts
 
 ```solidity
-function deployedTokenContracts(
+function getDeployedTokenContracts(
     uint256 guildId
-) external returns (address token)
+) external returns (address[] tokens)
 ```
 
-Returns the reward NFT address for a guild.
+Returns the reward NFT addresses for a guild.
 
 #### Parameters
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `guildId` | uint256 | The id of the guild the NFT is deployed in. |
+| `guildId` | uint256 | The id of the guild the NFTs are deployed in. |
 
 #### Return Values
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `token` | address | The address of the token. |
+| `tokens` | address[] | The addresses of the tokens deployed for guildId. |
 ### setValidSigner
 
 ```solidity
