@@ -1,11 +1,12 @@
 import { ethers, upgrades } from "hardhat";
 
-const tokenAddress = "0x..."; // The address where the contract was deployed (proxy).
+const factoryAddress = "0x..."; // The address where the contract was deployed (proxy).
 
 async function main() {
   const GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
-  const guildRewardNFTFactory = await upgrades.upgradeProxy(tokenAddress, GuildRewardNFTFactory, {
-    kind: "uups"
+  const guildRewardNFTFactory = await upgrades.upgradeProxy(factoryAddress, GuildRewardNFTFactory, {
+    kind: "uups",
+    unsafeSkipStorageCheck: true
     // call: { fn: "reInitialize", args: [] }
   });
 
@@ -15,7 +16,7 @@ async function main() {
 
   await guildRewardNFTFactory.waitForDeployment();
 
-  console.log("GuildRewardNFT deployed to", await guildRewardNFTFactory.getAddress());
+  console.log("GuildRewardNFTFactory deployed to", await guildRewardNFTFactory.getAddress());
 }
 
 main().catch((error) => {
