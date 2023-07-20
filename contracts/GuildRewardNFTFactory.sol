@@ -31,11 +31,17 @@ contract GuildRewardNFTFactory is
         __TreasuryManager_init(treasuryAddress);
     }
 
-    function clone(uint256 guildId, string calldata name, string calldata symbol, string calldata cid) external {
+    function clone(
+        uint256 guildId,
+        string calldata name,
+        string calldata symbol,
+        string calldata cid,
+        address tokenOwner
+    ) external {
         address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementation);
         IGuildRewardNFT deployedClone = IGuildRewardNFT(deployedCloneAddress);
 
-        deployedClone.initialize(name, symbol, cid, address(this));
+        deployedClone.initialize(name, symbol, cid, tokenOwner, address(this));
 
         deployedTokenContracts[guildId] = deployedCloneAddress;
 

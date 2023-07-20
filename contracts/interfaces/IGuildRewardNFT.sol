@@ -24,11 +24,13 @@ interface IGuildRewardNFT {
     /// @param name The name of the token.
     /// @param symbol The symbol of the token.
     /// @param cid The cid used to construct the tokenURI for the token to be minted.
+    /// @param tokenOwner The address that will be the owner of the deployed token.
     /// @param factoryProxyAddress The address of the factory.
     function initialize(
         string memory name,
         string memory symbol,
         string calldata cid,
+        address tokenOwner,
         address factoryProxyAddress
     ) external;
 

@@ -17,7 +17,14 @@ interface IGuildRewardNFTFactory {
     /// @param name The name of the NFT to be created.
     /// @param symbol The symbol of the NFT to be created.
     /// @param cid The cid used to construct the tokenURI of the NFT to be created.
-    function clone(uint256 guildId, string calldata name, string calldata symbol, string calldata cid) external;
+    /// @param tokenOwner The address that will be the owner of the deployed token.
+    function clone(
+        uint256 guildId,
+        string calldata name,
+        string calldata symbol,
+        string calldata cid,
+        address tokenOwner
+    ) external;
 
     /// @notice Returns the reward NFT address for a guild.
     /// @param guildId The id of the guild the NFT is deployed in.

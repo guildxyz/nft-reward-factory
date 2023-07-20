@@ -12,13 +12,7 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { ECDSAUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 /// @title An NFT distributed as a reward for Guild.xyz users.
-contract GuildRewardNFT is
-    IGuildRewardNFT,
-    Initializable,
-    OwnableUpgradeable, // TODO: custom ownable
-    UUPSUpgradeable,
-    SoulboundERC721
-{
+contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, UUPSUpgradeable, SoulboundERC721 {
     using ECDSAUpgradeable for bytes32;
     using LibTransfer for address;
     using LibTransfer for address payable;
@@ -38,13 +32,17 @@ contract GuildRewardNFT is
         string calldata name,
         string calldata symbol,
         string calldata _cid,
+        address tokenOwner,
         address factoryProxyAddress
     ) public initializer {
         cid = _cid;
         factoryProxy = factoryProxyAddress;
+
         __Ownable_init();
         __UUPSUpgradeable_init();
         __SoulboundERC721_init(name, symbol);
+
+        _transferOwnership(tokenOwner);
     }
 
     function claim(address payToken, address receiver, uint256 userId, bytes calldata signature) external payable {
