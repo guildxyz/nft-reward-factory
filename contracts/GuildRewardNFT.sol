@@ -100,7 +100,7 @@ contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, U
     // solhint-disable-next-line no-empty-blocks
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    function validSigner() public view returns (address signer) {
+    function validSigner() internal view returns (address signer) {
         return IGuildRewardNFTFactory(factoryProxy).validSigner();
     }
 

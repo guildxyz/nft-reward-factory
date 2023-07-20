@@ -62,7 +62,6 @@ describe("GuildRewardNFTFactory", () => {
     const nft = new Contract(nftAddress, nftMain.interface, wallet0);
     expect(await nft.name()).to.eq(sampleName);
     expect(await nft.symbol()).to.eq(sampleSymbol);
-    expect(await nft.validSigner()).to.eq(signer.address);
     expect(await nft.owner()).to.eq(randomWallet.address);
   });
 
