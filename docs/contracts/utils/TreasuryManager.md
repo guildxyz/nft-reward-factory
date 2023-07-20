@@ -84,3 +84,26 @@ Callable only by the owner.
 | :--- | :--- | :---------- |
 | `newTreasury` | address payable | The new address of the treasury. |
 
+### getFeeData
+
+```solidity
+function getFeeData(
+    address payToken
+) external returns (uint256 tokenFee, address payable treasuryAddress)
+```
+
+Gets both the fee and the treasury address for optimization purposes.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `payToken` | address | The token to get the fee for. |
+
+#### Return Values
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `tokenFee` | uint256 | The fee for the token in base units. |
+| `treasuryAddress` | address payable | The address of the treasury. |
+

@@ -4,11 +4,15 @@ An NFT distributed as a reward for Guild.xyz users.
 
 ## Variables
 
-### validSigner
+### factoryProxy
 
 ```solidity
-address validSigner
+address factoryProxy
 ```
+
+The address of the proxy to be used when interacting with the factory.
+
+_Used to access the factory's address when interacting through minimal proxies._
 
 #### Return Values
 
@@ -37,23 +41,21 @@ mapping(uint256 => uint256) claimedTokens
 function initialize(
     string name,
     string symbol,
-    address payable treasury,
-    address payable _validSigner,
-    string _cid
+    string _cid,
+    address tokenOwner,
+    address factoryProxyAddress
 ) public
 ```
-
-Sets metadata and the associated addresses.
 
 #### Parameters
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `name` | string | The name of the token. |
-| `symbol` | string | The symbol of the token. |
-| `treasury` | address payable | The address where the collected fees will be sent. |
-| `_validSigner` | address payable | The address that should sign the parameters for certain functions. |
-| `_cid` | string | The cid used to construct the tokenURI for the token to be minted. |
+| `name` | string |  |
+| `symbol` | string |  |
+| `_cid` | string |  |
+| `tokenOwner` | address |  |
+| `factoryProxyAddress` | address |  |
 
 ### claim
 
@@ -98,20 +100,6 @@ Burns a token from the sender.
 | `tokenId` | uint256 | The id of the token to burn. |
 | `userId` | uint256 | The id of the user on Guild. |
 | `signature` | bytes | The following signed by validSigner: receiver, userId, chainId, the contract's address. |
-
-### setValidSigner
-
-```solidity
-function setValidSigner(
-    address newValidSigner
-) external
-```
-
-#### Parameters
-
-| Name | Type | Description |
-| :--- | :--- | :---------- |
-| `newValidSigner` | address |  |
 
 ### updateTokenURI
 
@@ -204,6 +192,12 @@ function _authorizeUpgrade(
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `` | address |  |
+
+### validSigner
+
+```solidity
+function validSigner() internal returns (address signer)
+```
 
 ### isValidSignature
 
