@@ -9,7 +9,7 @@ const symbol = "SBT";
 
 // CONTRACTS
 let GuildRewardNFT: ContractFactory;
-let nft: Contract;
+let factory: Contract;
 
 // Test accounts
 let wallet0: SignerWithAddress;
@@ -22,19 +22,23 @@ describe("SoulboundERC721", () => {
 
   beforeEach("deploy contract", async () => {
     GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = await upgrades.deployProxy(GuildRewardNFT, ["SoulboundTestNFT", "SBT", "cid", randomWallet.address], {
-      kind: "uups"
-    });
-    await nft.waitForDeployment();
+    factory = await upgrades.deployProxy(
+      GuildRewardNFT,
+      ["SoulboundTestNFT", "SBT", "cid", wallet0.address, randomWallet.address],
+      {
+        kind: "uups"
+      }
+    );
+    await factory.waitForDeployment();
   });
 
   it("should have initialized the state variables", async () => {
-    expect(await nft.name()).to.eq(name);
-    expect(await nft.symbol()).to.eq(symbol);
+    expect(await factory.name()).to.eq(name);
+    expect(await factory.symbol()).to.eq(symbol);
   });
 
   it("should be upgradeable", async () => {
-    const upgraded = await upgrades.upgradeProxy(nft, GuildRewardNFT, {
+    const upgraded = await upgrades.upgradeProxy(factory, GuildRewardNFT, {
       kind: "uups"
       // call: { fn: "reInitialize", args: [] }
     });
@@ -44,24 +48,29 @@ describe("SoulboundERC721", () => {
   });
 
   it("should revert when calling transfer/approval-related functions", async () => {
-    await expect(nft.approve(wallet0.address, 0)).to.be.revertedWithCustomError(GuildRewardNFT, "Soulbound");
-    await expect(nft.setApprovalForAll(wallet0.address, true)).to.be.revertedWithCustomError(
+    await expect(factory.approve(wallet0.address, 0)).to.be.revertedWithCustomError(GuildRewardNFT, "Soulbound");
+    await expect(factory.setApprovalForAll(wallet0.address, true)).to.be.revertedWithCustomError(
       GuildRewardNFT,
       "Soulbound"
     );
-    await expect(nft.isApprovedForAll(wallet0.address, randomWallet.address)).to.be.revertedWithCustomError(
+    await expect(factory.isApprovedForAll(wallet0.address, randomWallet.address)).to.be.revertedWithCustomError(
       GuildRewardNFT,
       "Soulbound"
     );
-    await expect(nft.transferFrom(wallet0.address, randomWallet.address, 0)).to.be.revertedWithCustomError(
+    await expect(factory.transferFrom(wallet0.address, randomWallet.address, 0)).to.be.revertedWithCustomError(
       GuildRewardNFT,
       "Soulbound"
     );
     await expect(
-      nft["safeTransferFrom(address,address,uint256)"](wallet0.address, randomWallet.address, 0)
+      factory["safeTransferFrom(address,address,uint256)"](wallet0.address, randomWallet.address, 0)
     ).to.be.revertedWithCustomError(GuildRewardNFT, "Soulbound");
     await expect(
-      nft["safeTransferFrom(address,address,uint256,bytes)"](wallet0.address, randomWallet.address, 0, ethers.ZeroHash)
+      factory["safeTransferFrom(address,address,uint256,bytes)"](
+        wallet0.address,
+        randomWallet.address,
+        0,
+        ethers.ZeroHash
+      )
     ).to.be.revertedWithCustomError(GuildRewardNFT, "Soulbound");
   });
 });

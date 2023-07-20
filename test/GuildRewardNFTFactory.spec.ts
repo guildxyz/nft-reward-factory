@@ -40,7 +40,7 @@ describe("GuildRewardNFTFactory", () => {
     // });
     nftMain = (await GuildRewardNFT.deploy()) as Contract;
     await nftMain.waitForDeployment();
-    await nftMain.initialize("Test NFT", "TNFT", "cid", await factory.getAddress());
+    await nftMain.initialize("Test NFT", "TNFT", "cid", wallet0.address, await factory.getAddress());
 
     await factory.setNFTImplementation(nftMain);
   });
@@ -57,16 +57,17 @@ describe("GuildRewardNFTFactory", () => {
   });
 
   it("should deploy and initialize clones", async () => {
-    await factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0]);
+    await factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0], randomWallet.address);
     const nftAddress = await factory.deployedTokenContracts(sampleGuildId);
     const nft = new Contract(nftAddress, nftMain.interface, wallet0);
     expect(await nft.name()).to.eq(sampleName);
     expect(await nft.symbol()).to.eq(sampleSymbol);
     expect(await nft.validSigner()).to.eq(signer.address);
+    expect(await nft.owner()).to.eq(randomWallet.address);
   });
 
   it("should emit RewardNFTDeployed event", async () => {
-    await expect(factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0]))
+    await expect(factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0], wallet0.address))
       .to.emit(factory, "RewardNFTDeployed")
       .withArgs(sampleGuildId, anyValue);
   });
