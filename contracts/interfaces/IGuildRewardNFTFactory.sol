@@ -3,6 +3,9 @@ pragma solidity ^0.8.0;
 
 /// @title A simple factory deploying minimal proxy contracts for GuildRewardNFT.
 interface IGuildRewardNFTFactory {
+    /// @return nft The address of the deployed NFT contract.
+    function nftImplementation() external view returns (address nft);
+
     /// @return signer The address that signs the metadata.
     function validSigner() external view returns (address signer);
 
@@ -31,10 +34,15 @@ interface IGuildRewardNFTFactory {
     /// @return token The address of the token.
     function deployedTokenContracts(uint256 guildId) external view returns (address token);
 
-    /// @notice Set's the address that signs the metadata.
+    /// @notice Sets the address that signs the metadata.
     /// @dev Callable only by the owner.
     /// @param newValidSigner The new address of validSigner.
     function setValidSigner(address newValidSigner) external;
+
+    /// @notice Sets the address of the contract where the NFT is implemented.
+    /// @dev Callable only by the owner.
+    /// @param newNFT The address of the deployed NFT contract.
+    function setNFTImplementation(address newNFT) external;
 
     /// @notice Event emitted when the NFT implementation is changed.
     /// @param newNFT The new address of the NFT implementation.
