@@ -3,6 +3,7 @@ import { ethers, upgrades } from "hardhat";
 // CONFIG
 const treasury = "0x..."; // The address where the collected fees will go.
 const validSigner = "0x..."; // The address that signs the parameters for claiming tokens.
+// Note: set NFT implementation after deploying the NFT itself (deploy-nft.ts).
 
 async function main() {
   const GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
