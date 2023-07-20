@@ -13,6 +13,8 @@ const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQ
 let mockERC20: Contract;
 let GuildRewardNFT: ContractFactory;
 let nft: Contract;
+let GuildRewardNFTFactory: ContractFactory;
+let factory: Contract;
 
 // Test accounts
 let wallet0: SignerWithAddress;
@@ -38,7 +40,7 @@ const createSignature = async (
   return wallet.signMessage(ethers.getBytes(payloadHash));
 };
 
-xdescribe("GuildRewardNFT", () => {
+describe("GuildRewardNFT", () => {
   before("get accounts, setup variables, deploy ERC20", async () => {
     [wallet0, randomWallet, treasury, signer] = await ethers.getSigners();
 
@@ -50,22 +52,31 @@ xdescribe("GuildRewardNFT", () => {
   });
 
   beforeEach("deploy contract", async () => {
-    GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = await upgrades.deployProxy(GuildRewardNFT, [name, symbol, treasury.address, signer.address, cids[0]], {
+    GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
+    factory = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, signer.address], {
       kind: "uups"
     });
+    await factory.waitForDeployment();
+
+    GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
+    nft = await upgrades.deployProxy(
+      GuildRewardNFT,
+      [name, symbol, cids[0], wallet0.address, await factory.getAddress()],
+      {
+        kind: "uups"
+      }
+    );
     await nft.waitForDeployment();
 
-    nft.setFee(ethers.ZeroAddress, fee);
-    nft.setFee(mockERC20, fee);
+    await factory.setNFTImplementation(nft);
+    await factory.setFee(ethers.ZeroAddress, fee);
+    await factory.setFee(mockERC20, fee);
   });
 
   it("should have initialized the state variables", async () => {
     expect(await nft.name()).to.eq(name);
     expect(await nft.symbol()).to.eq(symbol);
     expect(await nft.owner()).to.eq(wallet0.address);
-    expect(await nft.treasury()).to.eq(treasury.address);
-    expect(await nft.validSigner()).to.eq(signer.address);
   });
 
   it("should be upgradeable", async () => {
@@ -77,7 +88,6 @@ xdescribe("GuildRewardNFT", () => {
     expect(await upgraded.name()).to.eq(name);
     expect(await upgraded.symbol()).to.eq(symbol);
     expect(await upgraded.owner()).to.eq(wallet0.address);
-    expect(await upgraded.treasury()).to.eq(treasury.address);
   });
 
   context("Claiming and burning", () => {
@@ -172,7 +182,7 @@ xdescribe("GuildRewardNFT", () => {
         const mockBadERC20 = await BadERC20.deploy("Mock Token", "MCK");
         mockBadERC20.mint(wallet0.address, ethers.parseEther("100"));
         await mockBadERC20.approve(nft, ethers.MaxUint256);
-        await nft.setFee(mockBadERC20, fee);
+        await factory.setFee(mockBadERC20, fee);
 
         await expect(nft.claim(mockBadERC20, wallet0.address, sampleUserId, sampleSignature))
           .to.be.revertedWithCustomError(nft, "TransferFailed")
