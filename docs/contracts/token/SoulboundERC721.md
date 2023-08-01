@@ -4,7 +4,7 @@ An enumerable soulbound ERC721.
 
 Allowance and transfer-related functions are disabled.
 
-Inheriting from upgradaeable contracts here - even though we're using it in a non-upgradeable way,
+Inheriting from upgradeable contracts here - even though we're using it in a non-upgradeable way,
 we still want it to be initializable
 
 ## Functions

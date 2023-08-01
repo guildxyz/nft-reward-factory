@@ -4,17 +4,6 @@ A simple factory deploying minimal proxy contracts for GuildRewardNFT.
 
 ## Functions
 
-### nftImplementation
-
-```solidity
-function nftImplementation() external returns (address nft)
-```
-
-#### Return Values
-
-| Name | Type | Description |
-| :--- | :--- | :---------- |
-| `nft` | address | The address of the deployed NFT contract. |
 ### validSigner
 
 ```solidity
@@ -26,6 +15,27 @@ function validSigner() external returns (address signer)
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `signer` | address | The address that signs the metadata. |
+### nftImplementations
+
+```solidity
+function nftImplementations(
+    enum IGuildRewardNFTFactory.ContractType contractType
+) external returns (address contractAddress)
+```
+
+Maps deployed implementation contract addresses to contract types.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `contractType` | enum IGuildRewardNFTFactory.ContractType | The type of the contract. |
+
+#### Return Values
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `contractAddress` | address | The address of the deployed NFT contract. |
 ### initialize
 
 ```solidity
@@ -75,7 +85,7 @@ Deploys a minimal proxy for the NFT.
 ```solidity
 function getDeployedTokenContracts(
     uint256 guildId
-) external returns (address[] tokens)
+) external returns (struct IGuildRewardNFTFactory.Deployment[] tokens)
 ```
 
 Returns the reward NFT addresses for a guild.
@@ -90,7 +100,7 @@ Returns the reward NFT addresses for a guild.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `tokens` | address[] | The addresses of the tokens deployed for guildId. |
+| `tokens` | struct IGuildRewardNFTFactory.Deployment[] | The addresses of the tokens deployed for guildId. |
 ### setValidSigner
 
 ```solidity
@@ -113,11 +123,12 @@ Callable only by the owner.
 
 ```solidity
 function setNFTImplementation(
+    enum IGuildRewardNFTFactory.ContractType contractType,
     address newNFT
 ) external
 ```
 
-Sets the address of the contract where the NFT is implemented.
+Sets the address of the contract where a specific NFT is implemented.
 
 Callable only by the owner.
 
@@ -125,6 +136,7 @@ Callable only by the owner.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
+| `contractType` | enum IGuildRewardNFTFactory.ContractType | The type of the contract. |
 | `newNFT` | address | The address of the deployed NFT contract. |
 
 ## Events
@@ -133,16 +145,18 @@ Callable only by the owner.
 
 ```solidity
 event ImplementationChanged(
+    enum IGuildRewardNFTFactory.ContractType contractType,
     address newNFT
 )
 ```
 
-Event emitted when the NFT implementation is changed.
+Event emitted when an NFT implementation is changed.
 
 #### Parameters
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
+| `contractType` | enum IGuildRewardNFTFactory.ContractType | The type of the contract. |
 | `newNFT` | address | The new address of the NFT implementation. |
 ### RewardNFTDeployed
 
@@ -176,4 +190,22 @@ Event emitted when the validSigner is changed.
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `newValidSigner` | address | The new address of validSigner. |
+
+## Custom types
+
+### ContractType
+
+```solidity
+enum ContractType {
+  BASIC_NFT
+}
+```
+### Deployment
+
+```solidity
+struct Deployment {
+  address contractAddress;
+  enum IGuildRewardNFTFactory.ContractType contractType;
+}
+```
 

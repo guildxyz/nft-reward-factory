@@ -4,17 +4,6 @@ A simple factory deploying minimal proxy contracts for GuildRewardNFT.
 
 ## Variables
 
-### nftImplementation
-
-```solidity
-address nftImplementation
-```
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-
 ### validSigner
 
 ```solidity
@@ -26,10 +15,28 @@ address validSigner
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
+### nftImplementations
+
+```solidity
+mapping(enum IGuildRewardNFTFactory.ContractType => address) nftImplementations
+```
+
+Maps deployed implementation contract addresses to contract types.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
 ### deployedTokenContracts
 
 ```solidity
-mapping(uint256 => address[]) deployedTokenContracts
+mapping(uint256 => struct IGuildRewardNFTFactory.Deployment[]) deployedTokenContracts
 ```
 
 ## Functions
@@ -82,11 +89,12 @@ Deploys a minimal proxy for the NFT.
 
 ```solidity
 function setNFTImplementation(
+    enum IGuildRewardNFTFactory.ContractType contractType,
     address newNFT
 ) external
 ```
 
-Sets the address of the contract where the NFT is implemented.
+Sets the address of the contract where a specific NFT is implemented.
 
 Callable only by the owner.
 
@@ -94,6 +102,7 @@ Callable only by the owner.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
+| `contractType` | enum IGuildRewardNFTFactory.ContractType | The type of the contract. |
 | `newNFT` | address | The address of the deployed NFT contract. |
 
 ### setValidSigner
@@ -119,7 +128,7 @@ Callable only by the owner.
 ```solidity
 function getDeployedTokenContracts(
     uint256 guildId
-) external returns (address[] tokens)
+) external returns (struct IGuildRewardNFTFactory.Deployment[] tokens)
 ```
 
 Returns the reward NFT addresses for a guild.
@@ -134,7 +143,7 @@ Returns the reward NFT addresses for a guild.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `tokens` | address[] | The addresses of the tokens deployed for guildId. |
+| `tokens` | struct IGuildRewardNFTFactory.Deployment[] | The addresses of the tokens deployed for guildId. |
 ### _authorizeUpgrade
 
 ```solidity
