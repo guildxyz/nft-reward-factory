@@ -59,14 +59,9 @@ describe("GuildRewardNFT", () => {
     await factory.waitForDeployment();
 
     GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = await upgrades.deployProxy(
-      GuildRewardNFT,
-      [name, symbol, cids[0], wallet0.address, await factory.getAddress()],
-      {
-        kind: "uups"
-      }
-    );
+    nft = (await GuildRewardNFT.deploy()) as Contract;
     await nft.waitForDeployment();
+    await nft.initialize(name, symbol, cids[0], wallet0.address, await factory.getAddress());
 
     await factory.setNFTImplementation(nft);
     await factory.setFee(ethers.ZeroAddress, fee);
@@ -77,17 +72,7 @@ describe("GuildRewardNFT", () => {
     expect(await nft.name()).to.eq(name);
     expect(await nft.symbol()).to.eq(symbol);
     expect(await nft.owner()).to.eq(wallet0.address);
-  });
-
-  it("should be upgradeable", async () => {
-    const upgraded = await upgrades.upgradeProxy(nft, GuildRewardNFT, {
-      kind: "uups"
-      // call: { fn: "reInitialize", args: [] }
-    });
-
-    expect(await upgraded.name()).to.eq(name);
-    expect(await upgraded.symbol()).to.eq(symbol);
-    expect(await upgraded.owner()).to.eq(wallet0.address);
+    expect(await nft.factoryProxy()).to.eq(await factory.getAddress());
   });
 
   context("Claiming and burning", () => {

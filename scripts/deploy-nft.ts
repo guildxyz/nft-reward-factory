@@ -1,6 +1,8 @@
-import { ethers, upgrades } from "hardhat";
+import { Contract } from "ethers";
+import { ethers } from "hardhat";
 
 // CONFIG
+// Note: just some default values. The values in clones will truly matter.
 const name = ""; // The name of the token.
 const symbol = ""; // The short, usually all caps symbol of the token.
 const cid = ""; // The cid that will be returned by the tokenURI.
@@ -9,15 +11,15 @@ const factoryAddress = "0x..."; /// The address of the proxy to be used when int
 
 async function main() {
   const GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-  const guildRewardNFT = await upgrades.deployProxy(GuildRewardNFT, [name, symbol, cid, tokenOwner, factoryAddress], {
-    kind: "uups"
-  });
+  const guildRewardNFT = (await GuildRewardNFT.deploy()) as Contract;
 
   const network = await ethers.provider.getNetwork();
   console.log(`Deploying contract to ${network.name !== "unknown" ? network.name : network.chainId}...`);
   console.log(`Tx hash: ${guildRewardNFT.deploymentTransaction()?.hash}`);
 
   await guildRewardNFT.waitForDeployment();
+
+  await guildRewardNFT.initialize(name, symbol, cid, tokenOwner, factoryAddress);
 
   console.log("GuildRewardNFT deployed to:", await guildRewardNFT.getAddress());
 }

@@ -179,20 +179,6 @@ See {IERC721Metadata-tokenURI}.
 | :--- | :--- | :---------- |
 | `tokenId` | uint256 |  |
 
-### _authorizeUpgrade
-
-```solidity
-function _authorizeUpgrade(
-    address 
-) internal
-```
-
-#### Parameters
-
-| Name | Type | Description |
-| :--- | :--- | :---------- |
-| `` | address |  |
-
 ### validSigner
 
 ```solidity

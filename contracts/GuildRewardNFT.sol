@@ -8,12 +8,11 @@ import { LibTransfer } from "./lib/LibTransfer.sol";
 import { SoulboundERC721 } from "./token/SoulboundERC721.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import { ECDSAUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title An NFT distributed as a reward for Guild.xyz users.
-contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, UUPSUpgradeable, SoulboundERC721 {
-    using ECDSAUpgradeable for bytes32;
+contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, SoulboundERC721 {
+    using ECDSA for bytes32;
     using LibTransfer for address;
     using LibTransfer for address payable;
 
@@ -24,10 +23,6 @@ contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, U
 
     mapping(uint256 userId => uint256 claimed) internal claimedTokens;
 
-    /// @notice Empty space reserved for future updates.
-    uint256[47] private __gap;
-
-    // solhint-disable-next-line func-name-mixedcase
     function initialize(
         string calldata name,
         string calldata symbol,
@@ -38,8 +33,6 @@ contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, U
         cid = _cid;
         factoryProxy = factoryProxyAddress;
 
-        __Ownable_init();
-        __UUPSUpgradeable_init();
         __SoulboundERC721_init(name, symbol);
 
         _transferOwnership(tokenOwner);
@@ -96,9 +89,6 @@ contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, U
 
         return string.concat("ipfs://", cid);
     }
-
-    // solhint-disable-next-line no-empty-blocks
-    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function validSigner() internal view returns (address signer) {
         return IGuildRewardNFTFactory(factoryProxy).validSigner();

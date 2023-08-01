@@ -12,9 +12,7 @@ const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQ
 
 // CONTRACTS
 let GuildRewardNFTFactory: ContractFactory;
-let GuildRewardNFT: ContractFactory;
 let factory: Contract;
-let nftMain: Contract;
 
 // Test accounts
 let wallet0: SignerWithAddress;
@@ -33,16 +31,6 @@ describe("GuildRewardNFTFactory", () => {
       kind: "uups"
     });
     await factory.waitForDeployment();
-
-    GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    // nftMain = await upgrades.deployProxy(GuildRewardNFT, ["Test NFT", "TNFT", "cid", await factory.getAddress()], {
-    //   kind: "uups"
-    // });
-    nftMain = (await GuildRewardNFT.deploy()) as Contract;
-    await nftMain.waitForDeployment();
-    await nftMain.initialize("Test NFT", "TNFT", "cid", wallet0.address, await factory.getAddress());
-
-    await factory.setNFTImplementation(nftMain);
   });
 
   it("should be upgradeable", async () => {
@@ -57,9 +45,14 @@ describe("GuildRewardNFTFactory", () => {
   });
 
   it("should deploy and initialize clones", async () => {
+    const GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
+    const nftMain = (await GuildRewardNFT.deploy()) as Contract;
+    await nftMain.waitForDeployment();
+    await factory.setNFTImplementation(nftMain);
+
     await factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0], randomWallet.address);
     const nftAddresses = await factory.getDeployedTokenContracts(sampleGuildId);
-    const nft = new Contract(nftAddresses[0], nftMain.interface, wallet0);
+    const nft = nftMain.attach(nftAddresses[0]) as Contract;
     expect(await nft.name()).to.eq(sampleName);
     expect(await nft.symbol()).to.eq(sampleSymbol);
     expect(await nft.owner()).to.eq(randomWallet.address);
