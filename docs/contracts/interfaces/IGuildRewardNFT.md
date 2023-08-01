@@ -4,6 +4,21 @@ An NFT distributed as a reward for Guild.xyz users.
 
 ## Functions
 
+### factoryProxy
+
+```solidity
+function factoryProxy() external returns (address factoryAddress)
+```
+
+The address of the proxy to be used when interacting with the factory.
+
+Used to access the factory's address when interacting through minimal proxies.
+
+#### Return Values
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `factoryAddress` | address | The address of the factory. |
 ### hasClaimed
 
 ```solidity
@@ -48,17 +63,32 @@ Used to prevent double mints in the same block.
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `claimed` | bool | Whether the userId has claimed any tokens. |
-### validSigner
+### initialize
 
 ```solidity
-function validSigner() external returns (address signer)
+function initialize(
+    string name,
+    string symbol,
+    string cid,
+    address tokenOwner,
+    address factoryProxyAddress
+) external
 ```
 
-#### Return Values
+Sets metadata and the associated addresses.
+
+Initializer function callable only once.
+
+#### Parameters
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `signer` | address | The address that signs the metadata. |
+| `name` | string | The name of the token. |
+| `symbol` | string | The symbol of the token. |
+| `cid` | string | The cid used to construct the tokenURI for the token to be minted. |
+| `tokenOwner` | address | The address that will be the owner of the deployed token. |
+| `factoryProxyAddress` | address | The address of the factory. |
+
 ### claim
 
 ```solidity
@@ -148,22 +178,6 @@ event MetadataUpdate(
 ```
 
 Event emitted whenever the cid is updated.
-
-### ValidSignerChanged
-
-```solidity
-event ValidSignerChanged(
-    address newValidSigner
-)
-```
-
-Event emitted when the validSigner is changed.
-
-#### Parameters
-
-| Name | Type | Description |
-| :--- | :--- | :---------- |
-| `newValidSigner` | address | The new address of validSigner. |
 
 ## Custom errors
 

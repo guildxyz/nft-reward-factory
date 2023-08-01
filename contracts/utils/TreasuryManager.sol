@@ -29,4 +29,8 @@ contract TreasuryManager is ITreasuryManager, Initializable, OwnableUpgradeable 
         treasury = newTreasury;
         emit TreasuryChanged(newTreasury);
     }
+
+    function getFeeData(address payToken) external view returns (uint256 tokenFee, address payable treasuryAddress) {
+        return (fee[payToken], treasury);
+    }
 }

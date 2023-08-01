@@ -44,7 +44,7 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     mumbai: {
-      url: `https://matic-mumbai.chainstacklabs.com`,
+      url: `https://polygon-testnet.public.blastapi.io`,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
     },
     gnosis: {

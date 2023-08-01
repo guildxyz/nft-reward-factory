@@ -13,6 +13,8 @@ const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQ
 let mockERC20: Contract;
 let GuildRewardNFT: ContractFactory;
 let nft: Contract;
+let GuildRewardNFTFactory: ContractFactory;
+let factory: Contract;
 
 // Test accounts
 let wallet0: SignerWithAddress;
@@ -22,6 +24,10 @@ let signer: SignerWithAddress;
 
 let chainId: BigNumberish;
 const sampleUserId = 42;
+
+enum ContractType {
+  BASIC_NFT
+}
 
 const createSignature = async (
   wallet: SignerWithAddress,
@@ -50,34 +56,27 @@ describe("GuildRewardNFT", () => {
   });
 
   beforeEach("deploy contract", async () => {
-    GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = await upgrades.deployProxy(GuildRewardNFT, [name, symbol, treasury.address, signer.address, cids[0]], {
+    GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
+    factory = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, signer.address], {
       kind: "uups"
     });
-    await nft.waitForDeployment();
+    await factory.waitForDeployment();
 
-    nft.setFee(ethers.ZeroAddress, fee);
-    nft.setFee(mockERC20, fee);
+    GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
+    nft = (await GuildRewardNFT.deploy()) as Contract;
+    await nft.waitForDeployment();
+    await nft.initialize(name, symbol, cids[0], wallet0.address, await factory.getAddress());
+
+    await factory.setNFTImplementation(ContractType.BASIC_NFT, nft);
+    await factory.setFee(ethers.ZeroAddress, fee);
+    await factory.setFee(mockERC20, fee);
   });
 
   it("should have initialized the state variables", async () => {
     expect(await nft.name()).to.eq(name);
     expect(await nft.symbol()).to.eq(symbol);
     expect(await nft.owner()).to.eq(wallet0.address);
-    expect(await nft.treasury()).to.eq(treasury.address);
-    expect(await nft.validSigner()).to.eq(signer.address);
-  });
-
-  it("should be upgradeable", async () => {
-    const upgraded = await upgrades.upgradeProxy(nft, GuildRewardNFT, {
-      kind: "uups"
-      // call: { fn: "reInitialize", args: [] }
-    });
-
-    expect(await upgraded.name()).to.eq(name);
-    expect(await upgraded.symbol()).to.eq(symbol);
-    expect(await upgraded.owner()).to.eq(wallet0.address);
-    expect(await upgraded.treasury()).to.eq(treasury.address);
+    expect(await nft.factoryProxy()).to.eq(await factory.getAddress());
   });
 
   context("Claiming and burning", () => {
@@ -172,7 +171,7 @@ describe("GuildRewardNFT", () => {
         const mockBadERC20 = await BadERC20.deploy("Mock Token", "MCK");
         mockBadERC20.mint(wallet0.address, ethers.parseEther("100"));
         await mockBadERC20.approve(nft, ethers.MaxUint256);
-        await nft.setFee(mockBadERC20, fee);
+        await factory.setFee(mockBadERC20, fee);
 
         await expect(nft.claim(mockBadERC20, wallet0.address, sampleUserId, sampleSignature))
           .to.be.revertedWithCustomError(nft, "TransferFailed")
@@ -338,28 +337,6 @@ describe("GuildRewardNFT", () => {
       it("should emit MetadataUpdate event", async () => {
         await expect(nft.updateTokenURI(cids[0])).to.emit(nft, "MetadataUpdate").withArgs();
       });
-    });
-  });
-
-  context("#setValidSigner", () => {
-    it("should revert if the valid signer is attempted to be changed by anyone but the owner", async () => {
-      await expect((nft.connect(randomWallet) as Contract).setValidSigner(randomWallet.address)).to.be.revertedWith(
-        "Ownable: caller is not the owner"
-      );
-    });
-
-    it("should change the valid signer's address", async () => {
-      const validSigner0 = await nft.validSigner();
-      await nft.setValidSigner(randomWallet.address);
-      const validSigner1 = await nft.validSigner();
-      expect(validSigner1).to.not.eq(validSigner0);
-      expect(validSigner1).to.eq(randomWallet.address);
-    });
-
-    it("should emit ValidSignerChanged event", async () => {
-      await expect(nft.setValidSigner(randomWallet.address))
-        .to.emit(nft, "ValidSignerChanged")
-        .withArgs(randomWallet.address);
     });
   });
 });

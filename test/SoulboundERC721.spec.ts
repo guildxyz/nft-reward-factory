@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { Contract, ContractFactory } from "ethers";
-import { ethers, upgrades } from "hardhat";
+import { ethers } from "hardhat";
 
 // NFT CONFIG
 const name = "SoulboundTestNFT";
@@ -22,29 +22,14 @@ describe("SoulboundERC721", () => {
 
   beforeEach("deploy contract", async () => {
     GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = await upgrades.deployProxy(
-      GuildRewardNFT,
-      ["SoulboundTestNFT", "SBT", randomWallet.address, randomWallet.address, "cid"],
-      {
-        kind: "uups"
-      }
-    );
+    nft = (await GuildRewardNFT.deploy()) as Contract;
     await nft.waitForDeployment();
+    await nft.initialize("SoulboundTestNFT", "SBT", "cid", wallet0.address, randomWallet.address);
   });
 
   it("should have initialized the state variables", async () => {
     expect(await nft.name()).to.eq(name);
     expect(await nft.symbol()).to.eq(symbol);
-  });
-
-  it("should be upgradeable", async () => {
-    const upgraded = await upgrades.upgradeProxy(nft, GuildRewardNFT, {
-      kind: "uups"
-      // call: { fn: "reInitialize", args: [] }
-    });
-
-    expect(await upgraded.name()).to.eq(name);
-    expect(await upgraded.symbol()).to.eq(symbol);
   });
 
   it("should revert when calling transfer/approval-related functions", async () => {

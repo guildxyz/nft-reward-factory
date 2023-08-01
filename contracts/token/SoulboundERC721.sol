@@ -12,10 +12,9 @@ import { IERC721EnumerableUpgradeable } from "@openzeppelin/contracts-upgradeabl
 
 /// @title An enumerable soulbound ERC721.
 /// @notice Allowance and transfer-related functions are disabled.
+/// @dev Inheriting from upgradeable contracts here - even though we're using it in a non-upgradeable way,
+/// we still want it to be initializable
 contract SoulboundERC721 is ERC721Upgradeable, ERC721EnumerableUpgradeable {
-    /// @notice Empty space reserved for future updates.
-    uint256[50] private __gap;
-
     /// @notice Error thrown when a function's execution is not possible, because this is a soulbound NFT.
     error Soulbound();
 
