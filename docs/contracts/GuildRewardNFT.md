@@ -181,12 +181,6 @@ See {IERC721Metadata-tokenURI}.
 | :--- | :--- | :---------- |
 | `tokenId` | uint256 |  |
 
-### validSigner
-
-```solidity
-function validSigner() internal returns (address signer)
-```
-
 ### isValidSignature
 
 ```solidity

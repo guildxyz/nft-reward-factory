@@ -91,15 +91,11 @@ contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, S
         return string.concat("ipfs://", cid);
     }
 
-    function validSigner() internal view returns (address signer) {
-        return IGuildRewardNFTFactory(factoryProxy).validSigner();
-    }
-
     /// @notice Checks the validity of the signature for the given params.
     function isValidSignature(address receiver, uint256 userId, bytes calldata signature) internal view returns (bool) {
         if (signature.length != 65) revert IncorrectSignature();
         bytes32 message = keccak256(abi.encode(receiver, userId, block.chainid, address(this)))
             .toEthSignedMessageHash();
-        return message.recover(signature) == validSigner();
+        return message.recover(signature) == IGuildRewardNFTFactory(factoryProxy).validSigner();
     }
 }
