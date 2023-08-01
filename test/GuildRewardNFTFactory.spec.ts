@@ -54,7 +54,7 @@ describe("GuildRewardNFTFactory", () => {
     await nftMain.waitForDeployment();
     await factory.setNFTImplementation(ContractType.BASIC_NFT, nftMain);
 
-    await factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0], randomWallet.address);
+    await factory.deployBasicNFT(sampleGuildId, sampleName, sampleSymbol, cids[0], randomWallet.address);
     const nftAddresses = await factory.getDeployedTokenContracts(sampleGuildId);
     const nft = nftMain.attach(nftAddresses[0].contractAddress) as Contract;
     expect(await nft.name()).to.eq(sampleName);
@@ -63,7 +63,7 @@ describe("GuildRewardNFTFactory", () => {
   });
 
   it("should emit RewardNFTDeployed event", async () => {
-    await expect(factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0], wallet0.address))
+    await expect(factory.deployBasicNFT(sampleGuildId, sampleName, sampleSymbol, cids[0], wallet0.address))
       .to.emit(factory, "RewardNFTDeployed")
       .withArgs(sampleGuildId, anyValue);
   });

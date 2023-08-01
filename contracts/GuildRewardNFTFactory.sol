@@ -31,7 +31,7 @@ contract GuildRewardNFTFactory is
         __TreasuryManager_init(treasuryAddress);
     }
 
-    function clone(
+    function deployBasicNFT(
         uint256 guildId,
         string calldata name,
         string calldata symbol,

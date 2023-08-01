@@ -31,13 +31,13 @@ interface IGuildRewardNFTFactory {
     /// @param validSignerAddress The address that will sign the metadata.
     function initialize(address payable treasuryAddress, address validSignerAddress) external;
 
-    /// @notice Deploys a minimal proxy for the NFT.
+    /// @notice Deploys a minimal proxy for a basic NFT.
     /// @param guildId The id of the guild the NFT is deployed in.
     /// @param name The name of the NFT to be created.
     /// @param symbol The symbol of the NFT to be created.
     /// @param cid The cid used to construct the tokenURI of the NFT to be created.
     /// @param tokenOwner The address that will be the owner of the deployed token.
-    function clone(
+    function deployBasicNFT(
         uint256 guildId,
         string calldata name,
         string calldata symbol,

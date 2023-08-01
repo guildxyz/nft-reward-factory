@@ -56,10 +56,10 @@ Initializer function callable only once.
 | `treasuryAddress` | address payable | The address that will receive the fees. |
 | `validSignerAddress` | address | The address that will sign the metadata. |
 
-### clone
+### deployBasicNFT
 
 ```solidity
-function clone(
+function deployBasicNFT(
     uint256 guildId,
     string name,
     string symbol,
@@ -68,7 +68,7 @@ function clone(
 ) external
 ```
 
-Deploys a minimal proxy for the NFT.
+Deploys a minimal proxy for a basic NFT.
 
 #### Parameters
 
