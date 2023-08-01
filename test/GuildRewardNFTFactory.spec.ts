@@ -68,6 +68,28 @@ describe("GuildRewardNFTFactory", () => {
       .withArgs(sampleGuildId, anyValue);
   });
 
+  context("#setNFTImplementation", () => {
+    it("should revert if an implementation is attempted to be changed by anyone but the owner", async () => {
+      await expect(
+        (factory.connect(randomWallet) as Contract).setNFTImplementation(ContractType.BASIC_NFT, randomWallet.address)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("should change an implementation's address", async () => {
+      const impl0 = await factory.nftImplementations(ContractType.BASIC_NFT);
+      await factory.setNFTImplementation(ContractType.BASIC_NFT, randomWallet.address);
+      const impl1 = await factory.nftImplementations(ContractType.BASIC_NFT);
+      expect(impl1).to.not.eq(impl0);
+      expect(impl1).to.eq(randomWallet.address);
+    });
+
+    it("should emit ImplementationChanged event", async () => {
+      await expect(factory.setNFTImplementation(ContractType.BASIC_NFT, randomWallet.address))
+        .to.emit(factory, "ImplementationChanged")
+        .withArgs(ContractType.BASIC_NFT, randomWallet.address);
+    });
+  });
+
   context("#setValidSigner", () => {
     it("should revert if the valid signer is attempted to be changed by anyone but the owner", async () => {
       await expect((factory.connect(randomWallet) as Contract).setValidSigner(randomWallet.address)).to.be.revertedWith(
