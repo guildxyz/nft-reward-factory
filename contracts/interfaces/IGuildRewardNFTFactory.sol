@@ -3,11 +3,27 @@ pragma solidity ^0.8.0;
 
 /// @title A simple factory deploying minimal proxy contracts for GuildRewardNFT.
 interface IGuildRewardNFTFactory {
-    /// @return nft The address of the deployed NFT contract.
-    function nftImplementation() external view returns (address nft);
+    /// @notice The type of the contract.
+    /// @dev Used as an identifier. Should be expanded in future updates.
+    enum ContractType {
+        BASIC_NFT
+    }
+
+    /// @notice Information about a specific deployment.
+    /// @param contractAddress The address where the contract/clone is deployed.
+    /// @param contractType The type of the contract.
+    struct Deployment {
+        address contractAddress;
+        ContractType contractType;
+    }
 
     /// @return signer The address that signs the metadata.
     function validSigner() external view returns (address signer);
+
+    /// @notice Maps deployed implementation contract addresses to contract types.
+    /// @param contractType The type of the contract.
+    /// @return contractAddress The address of the deployed NFT contract.
+    function nftImplementations(ContractType contractType) external view returns (address contractAddress);
 
     /// @notice Sets the associated addresses.
     /// @dev Initializer function callable only once.
@@ -32,21 +48,23 @@ interface IGuildRewardNFTFactory {
     /// @notice Returns the reward NFT addresses for a guild.
     /// @param guildId The id of the guild the NFTs are deployed in.
     /// @return tokens The addresses of the tokens deployed for guildId.
-    function getDeployedTokenContracts(uint256 guildId) external view returns (address[] memory tokens);
+    function getDeployedTokenContracts(uint256 guildId) external view returns (Deployment[] memory tokens);
 
     /// @notice Sets the address that signs the metadata.
     /// @dev Callable only by the owner.
     /// @param newValidSigner The new address of validSigner.
     function setValidSigner(address newValidSigner) external;
 
-    /// @notice Sets the address of the contract where the NFT is implemented.
+    /// @notice Sets the address of the contract where a specific NFT is implemented.
     /// @dev Callable only by the owner.
+    /// @param contractType The type of the contract.
     /// @param newNFT The address of the deployed NFT contract.
-    function setNFTImplementation(address newNFT) external;
+    function setNFTImplementation(ContractType contractType, address newNFT) external;
 
-    /// @notice Event emitted when the NFT implementation is changed.
+    /// @notice Event emitted when an NFT implementation is changed.
+    /// @param contractType The type of the contract.
     /// @param newNFT The new address of the NFT implementation.
-    event ImplementationChanged(address newNFT);
+    event ImplementationChanged(ContractType contractType, address newNFT);
 
     /// @notice Event emitted when a new NFT is deployed.
     /// @param guildId The id of the guild the NFT is deployed in.

@@ -20,6 +20,10 @@ let randomWallet: SignerWithAddress;
 let treasury: SignerWithAddress;
 let signer: SignerWithAddress;
 
+enum ContractType {
+  BASIC_NFT
+}
+
 describe("GuildRewardNFTFactory", () => {
   before("get accounts, setup variables", async () => {
     [wallet0, randomWallet, treasury, signer] = await ethers.getSigners();
@@ -48,11 +52,11 @@ describe("GuildRewardNFTFactory", () => {
     const GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
     const nftMain = (await GuildRewardNFT.deploy()) as Contract;
     await nftMain.waitForDeployment();
-    await factory.setNFTImplementation(nftMain);
+    await factory.setNFTImplementation(ContractType.BASIC_NFT, nftMain);
 
     await factory.clone(sampleGuildId, sampleName, sampleSymbol, cids[0], randomWallet.address);
     const nftAddresses = await factory.getDeployedTokenContracts(sampleGuildId);
-    const nft = nftMain.attach(nftAddresses[0]) as Contract;
+    const nft = nftMain.attach(nftAddresses[0].contractAddress) as Contract;
     expect(await nft.name()).to.eq(sampleName);
     expect(await nft.symbol()).to.eq(sampleSymbol);
     expect(await nft.owner()).to.eq(randomWallet.address);

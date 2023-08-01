@@ -25,6 +25,10 @@ let signer: SignerWithAddress;
 let chainId: BigNumberish;
 const sampleUserId = 42;
 
+enum ContractType {
+  BASIC_NFT
+}
+
 const createSignature = async (
   wallet: SignerWithAddress,
   receiver: string,
@@ -63,7 +67,7 @@ describe("GuildRewardNFT", () => {
     await nft.waitForDeployment();
     await nft.initialize(name, symbol, cids[0], wallet0.address, await factory.getAddress());
 
-    await factory.setNFTImplementation(nft);
+    await factory.setNFTImplementation(ContractType.BASIC_NFT, nft);
     await factory.setFee(ethers.ZeroAddress, fee);
     await factory.setFee(mockERC20, fee);
   });

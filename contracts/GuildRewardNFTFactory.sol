@@ -17,10 +17,10 @@ contract GuildRewardNFTFactory is
     OwnableUpgradeable,
     TreasuryManager
 {
-    address public nftImplementation;
     address public validSigner;
 
-    mapping(uint256 guildId => address[] tokens) internal deployedTokenContracts;
+    mapping(ContractType contractType => address contractAddress) public nftImplementations;
+    mapping(uint256 guildId => Deployment[] tokens) internal deployedTokenContracts;
 
     /// @notice Empty space reserved for future updates.
     uint256[47] private __gap;
@@ -38,19 +38,21 @@ contract GuildRewardNFTFactory is
         string calldata cid,
         address tokenOwner
     ) external {
-        address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementation);
+        address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementations[ContractType.BASIC_NFT]);
         IGuildRewardNFT deployedClone = IGuildRewardNFT(deployedCloneAddress);
 
         deployedClone.initialize(name, symbol, cid, tokenOwner, address(this));
 
-        deployedTokenContracts[guildId].push(deployedCloneAddress);
+        deployedTokenContracts[guildId].push(
+            Deployment({ contractAddress: deployedCloneAddress, contractType: ContractType.BASIC_NFT })
+        );
 
         emit RewardNFTDeployed(guildId, deployedCloneAddress);
     }
 
-    function setNFTImplementation(address newNFT) external onlyOwner {
-        nftImplementation = newNFT;
-        emit ImplementationChanged(newNFT);
+    function setNFTImplementation(ContractType contractType, address newNFT) external onlyOwner {
+        nftImplementations[contractType] = newNFT;
+        emit ImplementationChanged(contractType, newNFT);
     }
 
     function setValidSigner(address newValidSigner) external onlyOwner {
@@ -58,7 +60,7 @@ contract GuildRewardNFTFactory is
         emit ValidSignerChanged(newValidSigner);
     }
 
-    function getDeployedTokenContracts(uint256 guildId) external view returns (address[] memory tokens) {
+    function getDeployedTokenContracts(uint256 guildId) external view returns (Deployment[] memory tokens) {
         return deployedTokenContracts[guildId];
     }
 
