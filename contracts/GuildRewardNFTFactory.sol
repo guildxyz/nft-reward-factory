@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import { IGuildRewardNFT } from "./interfaces/IGuildRewardNFT.sol";
+import { IBasicGuildRewardNFT } from "./interfaces/IBasicGuildRewardNFT.sol";
 import { IGuildRewardNFTFactory } from "./interfaces/IGuildRewardNFTFactory.sol";
 import { TreasuryManager } from "./utils/TreasuryManager.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -9,7 +9,7 @@ import { ClonesUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/Clo
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-/// @title A simple factory deploying minimal proxy contracts for GuildRewardNFT.
+/// @title A simple factory deploying minimal proxy contracts for Guild reward NFTs.
 contract GuildRewardNFTFactory is
     IGuildRewardNFTFactory,
     Initializable,
@@ -41,7 +41,7 @@ contract GuildRewardNFTFactory is
         uint256 tokenFee
     ) external {
         address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementations[ContractType.BASIC_NFT]);
-        IGuildRewardNFT deployedClone = IGuildRewardNFT(deployedCloneAddress);
+        IBasicGuildRewardNFT deployedClone = IBasicGuildRewardNFT(deployedCloneAddress);
 
         deployedClone.initialize(name, symbol, cid, tokenOwner, tokenTreasury, tokenFee, address(this));
 

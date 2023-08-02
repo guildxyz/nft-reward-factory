@@ -1,6 +1,6 @@
 # IGuildRewardNFTFactory
 
-A simple factory deploying minimal proxy contracts for GuildRewardNFT.
+A simple factory deploying minimal proxy contracts for Guild reward NFTs.
 
 ## Functions
 

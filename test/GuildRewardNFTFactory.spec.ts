@@ -50,8 +50,8 @@ describe("GuildRewardNFTFactory", () => {
   });
 
   it("should deploy and initialize clones", async () => {
-    const GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    const nftMain = (await GuildRewardNFT.deploy()) as Contract;
+    const basicGuildRewardNFT = await ethers.getContractFactory("BasicGuildRewardNFT");
+    const nftMain = (await basicGuildRewardNFT.deploy()) as Contract;
     await nftMain.waitForDeployment();
     await factory.setNFTImplementation(ContractType.BASIC_NFT, nftMain);
 

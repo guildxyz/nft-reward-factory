@@ -1,4 +1,4 @@
-# IGuildRewardNFT
+# IBasicGuildRewardNFT
 
 An NFT distributed as a reward for Guild.xyz users.
 

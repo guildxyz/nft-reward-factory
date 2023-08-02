@@ -8,7 +8,7 @@ const name = "SoulboundTestNFT";
 const symbol = "SBT";
 
 // CONTRACTS
-let GuildRewardNFT: ContractFactory;
+let BasicGuildRewardNFT: ContractFactory;
 let nft: Contract;
 
 // Test accounts
@@ -21,8 +21,8 @@ describe("SoulboundERC721", () => {
   });
 
   beforeEach("deploy contract", async () => {
-    GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = (await GuildRewardNFT.deploy()) as Contract;
+    BasicGuildRewardNFT = await ethers.getContractFactory("BasicGuildRewardNFT");
+    nft = (await BasicGuildRewardNFT.deploy()) as Contract;
     await nft.waitForDeployment();
     await nft.initialize("SoulboundTestNFT", "SBT", "cid", wallet0.address, wallet0.address, 0, randomWallet.address);
   });
@@ -33,24 +33,24 @@ describe("SoulboundERC721", () => {
   });
 
   it("should revert when calling transfer/approval-related functions", async () => {
-    await expect(nft.approve(wallet0.address, 0)).to.be.revertedWithCustomError(GuildRewardNFT, "Soulbound");
+    await expect(nft.approve(wallet0.address, 0)).to.be.revertedWithCustomError(BasicGuildRewardNFT, "Soulbound");
     await expect(nft.setApprovalForAll(wallet0.address, true)).to.be.revertedWithCustomError(
-      GuildRewardNFT,
+      BasicGuildRewardNFT,
       "Soulbound"
     );
     await expect(nft.isApprovedForAll(wallet0.address, randomWallet.address)).to.be.revertedWithCustomError(
-      GuildRewardNFT,
+      BasicGuildRewardNFT,
       "Soulbound"
     );
     await expect(nft.transferFrom(wallet0.address, randomWallet.address, 0)).to.be.revertedWithCustomError(
-      GuildRewardNFT,
+      BasicGuildRewardNFT,
       "Soulbound"
     );
     await expect(
       nft["safeTransferFrom(address,address,uint256)"](wallet0.address, randomWallet.address, 0)
-    ).to.be.revertedWithCustomError(GuildRewardNFT, "Soulbound");
+    ).to.be.revertedWithCustomError(BasicGuildRewardNFT, "Soulbound");
     await expect(
       nft["safeTransferFrom(address,address,uint256,bytes)"](wallet0.address, randomWallet.address, 0, ethers.ZeroHash)
-    ).to.be.revertedWithCustomError(GuildRewardNFT, "Soulbound");
+    ).to.be.revertedWithCustomError(BasicGuildRewardNFT, "Soulbound");
   });
 });

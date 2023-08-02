@@ -41,7 +41,7 @@ function __TreasuryManager_init(
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `treasury_` | address payable | The address that will receive the fees. |
-| `fee_` | uint256 |  |
+| `fee_` | uint256 | The fee amount in wei. |
 
 ### setFee
 

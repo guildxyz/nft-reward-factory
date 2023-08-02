@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 /// @title An NFT distributed as a reward for Guild.xyz users.
-interface IGuildRewardNFT {
+interface IBasicGuildRewardNFT {
     /// @notice The address of the proxy to be used when interacting with the factory.
     /// @dev Used to access the factory's address when interacting through minimal proxies.
     /// @return factoryAddress The address of the factory.

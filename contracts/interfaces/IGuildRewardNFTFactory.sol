@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-/// @title A simple factory deploying minimal proxy contracts for GuildRewardNFT.
+/// @title A simple factory deploying minimal proxy contracts for Guild reward NFTs.
 interface IGuildRewardNFTFactory {
     /// @notice The type of the contract.
     /// @dev Used as an identifier. Should be expanded in future updates.

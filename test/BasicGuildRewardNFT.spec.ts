@@ -11,7 +11,7 @@ const price = ethers.parseEther("0.15");
 const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQGuExUjtyTRvZ2FF525Ww6PBNWWgkkLj"];
 
 // CONTRACTS
-let GuildRewardNFT: ContractFactory;
+let BasicGuildRewardNFT: ContractFactory;
 let nft: Contract;
 let GuildRewardNFTFactory: ContractFactory;
 let factory: Contract;
@@ -45,7 +45,7 @@ const createSignature = async (
   return wallet.signMessage(ethers.getBytes(payloadHash));
 };
 
-describe("GuildRewardNFT", () => {
+describe("BasicGuildRewardNFT", () => {
   before("get accounts, setup variables", async () => {
     [wallet0, randomWallet, treasury, adminTreasury, signer] = await ethers.getSigners();
 
@@ -59,8 +59,8 @@ describe("GuildRewardNFT", () => {
     });
     await factory.waitForDeployment();
 
-    GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
-    nft = (await GuildRewardNFT.deploy()) as Contract;
+    BasicGuildRewardNFT = await ethers.getContractFactory("BasicGuildRewardNFT");
+    nft = (await BasicGuildRewardNFT.deploy()) as Contract;
     await nft.waitForDeployment();
     await nft.initialize(
       name,
