@@ -6,12 +6,13 @@ import { IGuildRewardNFTFactory } from "./interfaces/IGuildRewardNFTFactory.sol"
 import { ITreasuryManager } from "./interfaces/ITreasuryManager.sol";
 import { LibTransfer } from "./lib/LibTransfer.sol";
 import { SoulboundERC721 } from "./token/SoulboundERC721.sol";
+import { TreasuryManager } from "./utils/TreasuryManager.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title An NFT distributed as a reward for Guild.xyz users.
-contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, SoulboundERC721 {
+contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, SoulboundERC721, TreasuryManager {
     using ECDSA for bytes32;
     using LibTransfer for address;
     using LibTransfer for address payable;
@@ -29,34 +30,34 @@ contract GuildRewardNFT is IGuildRewardNFT, Initializable, OwnableUpgradeable, S
         string calldata symbol,
         string calldata _cid,
         address tokenOwner,
+        address payable treasury,
+        uint256 tokenFee,
         address factoryProxyAddress
     ) public initializer {
         cid = _cid;
         factoryProxy = factoryProxyAddress;
 
         __SoulboundERC721_init(name, symbol);
+        __TreasuryManager_init(treasury, tokenFee);
 
         _transferOwnership(tokenOwner);
     }
 
-    function claim(address payToken, address receiver, uint256 userId, bytes calldata signature) external payable {
+    function claim(address receiver, uint256 userId, bytes calldata signature) external payable {
         if (balanceOf(receiver) > 0 || claimedTokens[userId] > 0) revert AlreadyClaimed();
         if (!isValidSignature(receiver, userId, signature)) revert IncorrectSignature();
 
         uint256 tokenId = totalSupply();
 
-        (uint256 fee, address payable treasury) = ITreasuryManager(factoryProxy).getFeeData(payToken);
-
-        if (fee == 0) revert IncorrectPayToken(payToken);
+        (uint256 guildFee, address payable guildTreasury) = ITreasuryManager(factoryProxy).getFeeData();
 
         claimedTokens[userId]++;
 
         // Fee collection
-        // When there is no msg.value, try transferring ERC20
-        // When there is msg.value, ensure it's the correct amount
-        if (msg.value == 0) treasury.sendTokenFrom(msg.sender, payToken, fee);
-        else if (msg.value != fee) revert IncorrectFee(msg.value, fee);
-        else treasury.sendEther(fee);
+        if (msg.value == guildFee + fee) {
+            guildTreasury.sendEther(guildFee);
+            treasury.sendEther(fee);
+        } else revert IncorrectFee(msg.value, guildFee + fee);
 
         _safeMint(receiver, tokenId);
 

@@ -15,15 +15,10 @@ Returns the address that receives the fees.
 ### fee
 
 ```solidity
-mapping(address => uint256) fee
+uint256 fee
 ```
 
 The minting fee of a token.
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
 
 #### Return Values
 
@@ -36,7 +31,8 @@ The minting fee of a token.
 
 ```solidity
 function __TreasuryManager_init(
-    address payable treasury_
+    address payable treasury_,
+    uint256 fee_
 ) internal
 ```
 
@@ -45,17 +41,17 @@ function __TreasuryManager_init(
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `treasury_` | address payable | The address that will receive the fees. |
+| `fee_` | uint256 |  |
 
 ### setFee
 
 ```solidity
 function setFee(
-    address token,
     uint256 newFee
 ) external
 ```
 
-Sets the minting fee for a given token used for paying.
+Sets the minting fee.
 
 Callable only by the owner.
 
@@ -63,7 +59,6 @@ Callable only by the owner.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `token` | address | The token whose fee is set. |
 | `newFee` | uint256 | The new fee in base units. |
 
 ### setTreasury
@@ -87,18 +82,10 @@ Callable only by the owner.
 ### getFeeData
 
 ```solidity
-function getFeeData(
-    address payToken
-) external returns (uint256 tokenFee, address payable treasuryAddress)
+function getFeeData() external returns (uint256 tokenFee, address payable treasuryAddress)
 ```
 
 Gets both the fee and the treasury address for optimization purposes.
-
-#### Parameters
-
-| Name | Type | Description |
-| :--- | :--- | :---------- |
-| `payToken` | address | The token to get the fee for. |
 
 #### Return Values
 

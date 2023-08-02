@@ -9,20 +9,22 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 contract TreasuryManager is ITreasuryManager, Initializable, OwnableUpgradeable {
     address payable public treasury;
 
-    mapping(address token => uint256 fee) public fee;
+    uint256 public fee;
 
     /// @notice Empty space reserved for future updates.
     uint256[48] private __gap;
 
     /// @param treasury_ The address that will receive the fees.
+    /// @param fee_ The fee amount in wei.
     // solhint-disable-next-line func-name-mixedcase
-    function __TreasuryManager_init(address payable treasury_) internal onlyInitializing {
+    function __TreasuryManager_init(address payable treasury_, uint256 fee_) internal onlyInitializing {
         treasury = treasury_;
+        fee = fee_;
     }
 
-    function setFee(address token, uint256 newFee) external onlyOwner {
-        fee[token] = newFee;
-        emit FeeChanged(token, newFee);
+    function setFee(uint256 newFee) external onlyOwner {
+        fee = newFee;
+        emit FeeChanged(newFee);
     }
 
     function setTreasury(address payable newTreasury) external onlyOwner {
@@ -30,7 +32,7 @@ contract TreasuryManager is ITreasuryManager, Initializable, OwnableUpgradeable 
         emit TreasuryChanged(newTreasury);
     }
 
-    function getFeeData(address payToken) external view returns (uint256 tokenFee, address payable treasuryAddress) {
-        return (fee[payToken], treasury);
+    function getFeeData() external view returns (uint256 tokenFee, address payable treasuryAddress) {
+        return (fee, treasury);
     }
 }

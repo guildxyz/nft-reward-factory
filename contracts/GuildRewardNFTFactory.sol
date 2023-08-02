@@ -25,10 +25,10 @@ contract GuildRewardNFTFactory is
     /// @notice Empty space reserved for future updates.
     uint256[47] private __gap;
 
-    function initialize(address payable treasuryAddress, address validSignerAddress) public initializer {
+    function initialize(address payable treasuryAddress, uint256 fee, address validSignerAddress) public initializer {
         validSigner = validSignerAddress;
         __Ownable_init();
-        __TreasuryManager_init(treasuryAddress);
+        __TreasuryManager_init(treasuryAddress, fee);
     }
 
     function deployBasicNFT(
@@ -36,12 +36,14 @@ contract GuildRewardNFTFactory is
         string calldata name,
         string calldata symbol,
         string calldata cid,
-        address tokenOwner
+        address tokenOwner,
+        address payable tokenTreasury,
+        uint256 tokenFee
     ) external {
         address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementations[ContractType.BASIC_NFT]);
         IGuildRewardNFT deployedClone = IGuildRewardNFT(deployedCloneAddress);
 
-        deployedClone.initialize(name, symbol, cid, tokenOwner, address(this));
+        deployedClone.initialize(name, symbol, cid, tokenOwner, tokenTreasury, tokenFee, address(this));
 
         deployedTokenContracts[guildId].push(
             Deployment({ contractAddress: deployedCloneAddress, contractType: ContractType.BASIC_NFT })

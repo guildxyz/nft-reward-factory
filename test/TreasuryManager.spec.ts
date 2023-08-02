@@ -4,7 +4,6 @@ import { Contract, ContractFactory } from "ethers";
 import { ethers, upgrades } from "hardhat";
 
 // CONTRACTS
-let mockERC20: Contract;
 let GuildRewardNFTFactory: ContractFactory;
 let factory: Contract;
 
@@ -15,16 +14,13 @@ let treasury: SignerWithAddress;
 let signer: SignerWithAddress;
 
 describe("TreasuryManager", () => {
-  before("get accounts, setup variables, deploy ERC20", async () => {
+  before("get accounts, setup variables", async () => {
     [wallet0, randomWallet, treasury, signer] = await ethers.getSigners();
-
-    const ERC20 = await ethers.getContractFactory("MockERC20");
-    mockERC20 = await ERC20.deploy("Mock Token", "MCK");
   });
 
   beforeEach("deploy contract", async () => {
     GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
-    factory = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, signer.address], {
+    factory = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, 1, signer.address], {
       kind: "uups"
     });
     await factory.waitForDeployment();
@@ -46,24 +42,23 @@ describe("TreasuryManager", () => {
   });
 
   context("#setFee", () => {
-    it("should revert if a token's fee is attempted to be changed by anyone but the owner", async () => {
-      await expect((factory.connect(randomWallet) as Contract).setFee(ethers.ZeroAddress, 12)).to.be.revertedWith(
+    it("should revert if the fee is attempted to be changed by anyone but the owner", async () => {
+      await expect((factory.connect(randomWallet) as Contract).setFee(12)).to.be.revertedWith(
         "Ownable: caller is not the owner"
       );
     });
 
-    it("should change the tokens' fees", async () => {
-      const mockFee0 = await factory.fee(mockERC20);
-      await factory.setFee(mockERC20, 69);
-      const mockFee1 = await factory.fee(mockERC20);
+    it("should change the fee", async () => {
+      const mockFee0 = await factory.fee();
+      await factory.setFee(69);
+      const mockFee1 = await factory.fee();
       expect(mockFee0).to.not.eq(mockFee1);
       expect(mockFee1).to.eq(69);
     });
 
     it("should emit FeeChanged event", async () => {
-      const token = randomWallet.address;
       const newFee = 42;
-      await expect(factory.setFee(token, newFee)).to.emit(factory, "FeeChanged").withArgs(token, newFee);
+      await expect(factory.setFee(newFee)).to.emit(factory, "FeeChanged").withArgs(newFee);
     });
   });
 
