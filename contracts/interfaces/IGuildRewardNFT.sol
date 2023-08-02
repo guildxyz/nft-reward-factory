@@ -25,22 +25,24 @@ interface IGuildRewardNFT {
     /// @param symbol The symbol of the token.
     /// @param cid The cid used to construct the tokenURI for the token to be minted.
     /// @param tokenOwner The address that will be the owner of the deployed token.
+    /// @param treasury The address that will receive the price paid for the token.
+    /// @param tokenFee The price of every mint in wei.
     /// @param factoryProxyAddress The address of the factory.
     function initialize(
         string memory name,
         string memory symbol,
         string calldata cid,
         address tokenOwner,
+        address payable treasury,
+        uint256 tokenFee,
         address factoryProxyAddress
     ) external;
 
     /// @notice Claims tokens to the given address.
-    /// @dev The contract needs to be approved if ERC20 tokens are used.
-    /// @param payToken The address of the token that's used for paying the minting fees. 0 for ether.
     /// @param receiver The address that receives the token.
     /// @param userId The id of the user on Guild.
     /// @param signature The following signed by validSigner: receiver, userId, chainId, the contract's address.
-    function claim(address payToken, address receiver, uint256 userId, bytes calldata signature) external payable;
+    function claim(address receiver, uint256 userId, bytes calldata signature) external payable;
 
     /// @notice Burns a token from the sender.
     /// @param tokenId The id of the token to burn.
@@ -68,11 +70,6 @@ interface IGuildRewardNFT {
     /// @param paid The amount of funds received.
     /// @param requiredAmount The amount of fees required for minting.
     error IncorrectFee(uint256 paid, uint256 requiredAmount);
-
-    /// @notice Error thrown when such a token is attempted to be used for paying that has no fee set.
-    /// @dev The owner should set a fee for the token to solve this issue.
-    /// @param token The address of the token that cannot be used.
-    error IncorrectPayToken(address token);
 
     /// @notice Error thrown when the sender is not permitted to do a specific action.
     error IncorrectSender();

@@ -45,6 +45,8 @@ function initialize(
     string symbol,
     string _cid,
     address tokenOwner,
+    address payable treasury,
+    uint256 tokenFee,
     address factoryProxyAddress
 ) public
 ```
@@ -57,13 +59,14 @@ function initialize(
 | `symbol` | string |  |
 | `_cid` | string |  |
 | `tokenOwner` | address |  |
+| `treasury` | address payable |  |
+| `tokenFee` | uint256 |  |
 | `factoryProxyAddress` | address |  |
 
 ### claim
 
 ```solidity
 function claim(
-    address payToken,
     address receiver,
     uint256 userId,
     bytes signature
@@ -72,13 +75,10 @@ function claim(
 
 Claims tokens to the given address.
 
-The contract needs to be approved if ERC20 tokens are used.
-
 #### Parameters
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `payToken` | address | The address of the token that's used for paying the minting fees. 0 for ether. |
 | `receiver` | address | The address that receives the token. |
 | `userId` | uint256 | The id of the user on Guild. |
 | `signature` | bytes | The following signed by validSigner: receiver, userId, chainId, the contract's address. |

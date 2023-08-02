@@ -9,6 +9,7 @@ const sampleGuildId = 1985;
 const sampleName = "Test Guild Passport";
 const sampleSymbol = "TGP";
 const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQGuExUjtyTRvZ2FF525Ww6PBNWWgkkLj"];
+const sampleFee = 69;
 
 // CONTRACTS
 let GuildRewardNFTFactory: ContractFactory;
@@ -31,7 +32,7 @@ describe("GuildRewardNFTFactory", () => {
 
   beforeEach("deploy contract", async () => {
     GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
-    factory = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, signer.address], {
+    factory = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, 1, signer.address], {
       kind: "uups"
     });
     await factory.waitForDeployment();
@@ -54,16 +55,27 @@ describe("GuildRewardNFTFactory", () => {
     await nftMain.waitForDeployment();
     await factory.setNFTImplementation(ContractType.BASIC_NFT, nftMain);
 
-    await factory.deployBasicNFT(sampleGuildId, sampleName, sampleSymbol, cids[0], randomWallet.address);
+    await factory.deployBasicNFT(
+      sampleGuildId,
+      sampleName,
+      sampleSymbol,
+      cids[0],
+      randomWallet.address,
+      treasury.address,
+      sampleFee
+    );
     const nftAddresses = await factory.getDeployedTokenContracts(sampleGuildId);
     const nft = nftMain.attach(nftAddresses[0].contractAddress) as Contract;
     expect(await nft.name()).to.eq(sampleName);
     expect(await nft.symbol()).to.eq(sampleSymbol);
     expect(await nft.owner()).to.eq(randomWallet.address);
+    expect(await nft.fee()).to.eq(sampleFee);
   });
 
   it("should emit RewardNFTDeployed event", async () => {
-    await expect(factory.deployBasicNFT(sampleGuildId, sampleName, sampleSymbol, cids[0], wallet0.address))
+    await expect(
+      factory.deployBasicNFT(sampleGuildId, sampleName, sampleSymbol, cids[0], wallet0.address, treasury.address, 0)
+    )
       .to.emit(factory, "RewardNFTDeployed")
       .withArgs(sampleGuildId, anyValue);
   });

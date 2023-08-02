@@ -71,6 +71,8 @@ function initialize(
     string symbol,
     string cid,
     address tokenOwner,
+    address payable treasury,
+    uint256 tokenFee,
     address factoryProxyAddress
 ) external
 ```
@@ -87,13 +89,14 @@ Initializer function callable only once.
 | `symbol` | string | The symbol of the token. |
 | `cid` | string | The cid used to construct the tokenURI for the token to be minted. |
 | `tokenOwner` | address | The address that will be the owner of the deployed token. |
+| `treasury` | address payable | The address that will receive the price paid for the token. |
+| `tokenFee` | uint256 | The price of every mint in wei. |
 | `factoryProxyAddress` | address | The address of the factory. |
 
 ### claim
 
 ```solidity
 function claim(
-    address payToken,
     address receiver,
     uint256 userId,
     bytes signature
@@ -102,13 +105,10 @@ function claim(
 
 Claims tokens to the given address.
 
-The contract needs to be approved if ERC20 tokens are used.
-
 #### Parameters
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `payToken` | address | The address of the token that's used for paying the minting fees. 0 for ether. |
 | `receiver` | address | The address that receives the token. |
 | `userId` | uint256 | The id of the user on Guild. |
 | `signature` | bytes | The following signed by validSigner: receiver, userId, chainId, the contract's address. |
@@ -203,22 +203,6 @@ Error thrown when an incorrect amount of fee is attempted to be paid.
 | ---- | ---- | ----------- |
 | paid | uint256 | The amount of funds received. |
 | requiredAmount | uint256 | The amount of fees required for minting. |
-
-### IncorrectPayToken
-
-```solidity
-error IncorrectPayToken(address token)
-```
-
-Error thrown when such a token is attempted to be used for paying that has no fee set.
-
-_The owner should set a fee for the token to solve this issue._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| token | address | The address of the token that cannot be used. |
 
 ### IncorrectSender
 

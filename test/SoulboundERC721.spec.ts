@@ -24,7 +24,7 @@ describe("SoulboundERC721", () => {
     GuildRewardNFT = await ethers.getContractFactory("GuildRewardNFT");
     nft = (await GuildRewardNFT.deploy()) as Contract;
     await nft.waitForDeployment();
-    await nft.initialize("SoulboundTestNFT", "SBT", "cid", wallet0.address, randomWallet.address);
+    await nft.initialize("SoulboundTestNFT", "SBT", "cid", wallet0.address, wallet0.address, 0, randomWallet.address);
   });
 
   it("should have initialized the state variables", async () => {

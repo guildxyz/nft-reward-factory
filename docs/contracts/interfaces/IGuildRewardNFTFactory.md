@@ -41,6 +41,7 @@ Maps deployed implementation contract addresses to contract types.
 ```solidity
 function initialize(
     address payable treasuryAddress,
+    uint256 fee,
     address validSignerAddress
 ) external
 ```
@@ -54,6 +55,7 @@ Initializer function callable only once.
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `treasuryAddress` | address payable | The address that will receive the fees. |
+| `fee` | uint256 | The Guild base fee for every deployment. |
 | `validSignerAddress` | address | The address that will sign the metadata. |
 
 ### deployBasicNFT
@@ -64,7 +66,9 @@ function deployBasicNFT(
     string name,
     string symbol,
     string cid,
-    address tokenOwner
+    address tokenOwner,
+    address payable tokenTreasury,
+    uint256 tokenFee
 ) external
 ```
 
@@ -79,6 +83,8 @@ Deploys a minimal proxy for a basic NFT.
 | `symbol` | string | The symbol of the NFT to be created. |
 | `cid` | string | The cid used to construct the tokenURI of the NFT to be created. |
 | `tokenOwner` | address | The address that will be the owner of the deployed token. |
+| `tokenTreasury` | address payable | The address that will collect the prices of the minted deployed tokens. |
+| `tokenFee` | uint256 | The price of every mint in wei. |
 
 ### getDeployedTokenContracts
 
