@@ -12,7 +12,13 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title An NFT distributed as a reward for Guild.xyz users.
-contract BasicGuildRewardNFT is IBasicGuildRewardNFT, Initializable, OwnableUpgradeable, SoulboundERC721, TreasuryManager {
+contract BasicGuildRewardNFT is
+    IBasicGuildRewardNFT,
+    Initializable,
+    OwnableUpgradeable,
+    SoulboundERC721,
+    TreasuryManager
+{
     using ECDSA for bytes32;
     using LibTransfer for address;
     using LibTransfer for address payable;
