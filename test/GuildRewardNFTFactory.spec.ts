@@ -5,7 +5,6 @@ import { Contract, ContractFactory } from "ethers";
 import { ethers, upgrades } from "hardhat";
 
 /// NFT CONFIG
-const sampleGuildId = 1985;
 const sampleName = "Test Guild Passport";
 const sampleSymbol = "TGP";
 const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQGuExUjtyTRvZ2FF525Ww6PBNWWgkkLj"];
@@ -55,16 +54,8 @@ describe("GuildRewardNFTFactory", () => {
     await nftMain.waitForDeployment();
     await factory.setNFTImplementation(ContractType.BASIC_NFT, nftMain);
 
-    await factory.deployBasicNFT(
-      sampleGuildId,
-      sampleName,
-      sampleSymbol,
-      cids[0],
-      randomWallet.address,
-      treasury.address,
-      sampleFee
-    );
-    const nftAddresses = await factory.getDeployedTokenContracts(sampleGuildId);
+    await factory.deployBasicNFT(sampleName, sampleSymbol, cids[0], randomWallet.address, treasury.address, sampleFee);
+    const nftAddresses = await factory.getDeployedTokenContracts(wallet0.address);
     const nft = nftMain.attach(nftAddresses[0].contractAddress) as Contract;
     expect(await nft.name()).to.eq(sampleName);
     expect(await nft.symbol()).to.eq(sampleSymbol);
@@ -73,11 +64,9 @@ describe("GuildRewardNFTFactory", () => {
   });
 
   it("should emit RewardNFTDeployed event", async () => {
-    await expect(
-      factory.deployBasicNFT(sampleGuildId, sampleName, sampleSymbol, cids[0], wallet0.address, treasury.address, 0)
-    )
+    await expect(factory.deployBasicNFT(sampleName, sampleSymbol, cids[0], wallet0.address, treasury.address, 0))
       .to.emit(factory, "RewardNFTDeployed")
-      .withArgs(sampleGuildId, anyValue);
+      .withArgs(wallet0.address, anyValue);
   });
 
   context("#setNFTImplementation", () => {

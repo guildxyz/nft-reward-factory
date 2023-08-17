@@ -20,7 +20,7 @@ contract GuildRewardNFTFactory is
     address public validSigner;
 
     mapping(ContractType contractType => address contractAddress) public nftImplementations;
-    mapping(uint256 guildId => Deployment[] tokens) internal deployedTokenContracts;
+    mapping(address deployer => Deployment[] tokens) internal deployedTokenContracts;
 
     /// @notice Empty space reserved for future updates.
     uint256[47] private __gap;
@@ -32,7 +32,6 @@ contract GuildRewardNFTFactory is
     }
 
     function deployBasicNFT(
-        uint256 guildId,
         string calldata name,
         string calldata symbol,
         string calldata cid,
@@ -45,11 +44,11 @@ contract GuildRewardNFTFactory is
 
         deployedClone.initialize(name, symbol, cid, tokenOwner, tokenTreasury, tokenFee, address(this));
 
-        deployedTokenContracts[guildId].push(
+        deployedTokenContracts[msg.sender].push(
             Deployment({ contractAddress: deployedCloneAddress, contractType: ContractType.BASIC_NFT })
         );
 
-        emit RewardNFTDeployed(guildId, deployedCloneAddress);
+        emit RewardNFTDeployed(msg.sender, deployedCloneAddress);
     }
 
     function setNFTImplementation(ContractType contractType, address newNFT) external onlyOwner {
@@ -62,8 +61,8 @@ contract GuildRewardNFTFactory is
         emit ValidSignerChanged(newValidSigner);
     }
 
-    function getDeployedTokenContracts(uint256 guildId) external view returns (Deployment[] memory tokens) {
-        return deployedTokenContracts[guildId];
+    function getDeployedTokenContracts(address deployer) external view returns (Deployment[] memory tokens) {
+        return deployedTokenContracts[deployer];
     }
 
     // solhint-disable-next-line no-empty-blocks

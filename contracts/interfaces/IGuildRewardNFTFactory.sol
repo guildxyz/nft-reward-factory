@@ -33,7 +33,6 @@ interface IGuildRewardNFTFactory {
     function initialize(address payable treasuryAddress, uint256 fee, address validSignerAddress) external;
 
     /// @notice Deploys a minimal proxy for a basic NFT.
-    /// @param guildId The id of the guild the NFT is deployed in.
     /// @param name The name of the NFT to be created.
     /// @param symbol The symbol of the NFT to be created.
     /// @param cid The cid used to construct the tokenURI of the NFT to be created.
@@ -41,7 +40,6 @@ interface IGuildRewardNFTFactory {
     /// @param tokenTreasury The address that will collect the prices of the minted deployed tokens.
     /// @param tokenFee The price of every mint in wei.
     function deployBasicNFT(
-        uint256 guildId,
         string calldata name,
         string calldata symbol,
         string calldata cid,
@@ -51,9 +49,9 @@ interface IGuildRewardNFTFactory {
     ) external;
 
     /// @notice Returns the reward NFT addresses for a guild.
-    /// @param guildId The id of the guild the NFTs are deployed in.
-    /// @return tokens The addresses of the tokens deployed for guildId.
-    function getDeployedTokenContracts(uint256 guildId) external view returns (Deployment[] memory tokens);
+    /// @param deployer The address that deployed the tokens.
+    /// @return tokens The addresses of the tokens deployed by deployer.
+    function getDeployedTokenContracts(address deployer) external view returns (Deployment[] memory tokens);
 
     /// @notice Sets the address that signs the metadata.
     /// @dev Callable only by the owner.
@@ -72,9 +70,9 @@ interface IGuildRewardNFTFactory {
     event ImplementationChanged(ContractType contractType, address newNFT);
 
     /// @notice Event emitted when a new NFT is deployed.
-    /// @param guildId The id of the guild the NFT is deployed in.
+    /// @param deployer The address that deployed the token.
     /// @param tokenAddress The address of the token.
-    event RewardNFTDeployed(uint256 guildId, address tokenAddress);
+    event RewardNFTDeployed(address deployer, address tokenAddress);
 
     /// @notice Event emitted when the validSigner is changed.
     /// @param newValidSigner The new address of validSigner.

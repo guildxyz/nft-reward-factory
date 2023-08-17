@@ -36,7 +36,7 @@ Maps deployed implementation contract addresses to contract types.
 ### deployedTokenContracts
 
 ```solidity
-mapping(uint256 => struct IGuildRewardNFTFactory.Deployment[]) deployedTokenContracts
+mapping(address => struct IGuildRewardNFTFactory.Deployment[]) deployedTokenContracts
 ```
 
 ## Functions
@@ -67,7 +67,6 @@ Initializer function callable only once.
 
 ```solidity
 function deployBasicNFT(
-    uint256 guildId,
     string name,
     string symbol,
     string cid,
@@ -83,7 +82,6 @@ Deploys a minimal proxy for a basic NFT.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `guildId` | uint256 | The id of the guild the NFT is deployed in. |
 | `name` | string | The name of the NFT to be created. |
 | `symbol` | string | The symbol of the NFT to be created. |
 | `cid` | string | The cid used to construct the tokenURI of the NFT to be created. |
@@ -133,7 +131,7 @@ Callable only by the owner.
 
 ```solidity
 function getDeployedTokenContracts(
-    uint256 guildId
+    address deployer
 ) external returns (struct IGuildRewardNFTFactory.Deployment[] tokens)
 ```
 
@@ -143,13 +141,13 @@ Returns the reward NFT addresses for a guild.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `guildId` | uint256 | The id of the guild the NFTs are deployed in. |
+| `deployer` | address | The address that deployed the tokens. |
 
 #### Return Values
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `tokens` | struct IGuildRewardNFTFactory.Deployment[] | The addresses of the tokens deployed for guildId. |
+| `tokens` | struct IGuildRewardNFTFactory.Deployment[] | The addresses of the tokens deployed by deployer. |
 ### _authorizeUpgrade
 
 ```solidity
