@@ -67,6 +67,8 @@ contract BasicGuildRewardNFT is
 
         _safeMint(receiver, tokenId);
 
+        emit Locked(tokenId);
+
         emit Claimed(receiver, tokenId);
     }
 

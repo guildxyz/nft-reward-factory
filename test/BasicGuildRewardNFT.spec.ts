@@ -201,6 +201,13 @@ describe("BasicGuildRewardNFT", () => {
         expect(await nft.ownerOf(tokenId)).to.eq(wallet0.address);
       });
 
+      it("should emit Locked event when minting", async () => {
+        const tokenId = await nft.totalSupply();
+        await expect(nft.claim(wallet0.address, sampleUserId, sampleSignature, { value: fee + price }))
+          .to.emit(nft, "Locked")
+          .withArgs(tokenId);
+      });
+
       it("should emit Claimed event", async () => {
         await expect(
           nft.claim(wallet0.address, sampleUserId, sampleSignature, {

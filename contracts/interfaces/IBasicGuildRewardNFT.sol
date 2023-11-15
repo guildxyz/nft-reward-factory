@@ -76,8 +76,4 @@ interface IBasicGuildRewardNFT {
 
     /// @notice Error thrown when the supplied signature is invalid.
     error IncorrectSignature();
-
-    /// @notice Error thrown when trying to query info about a token that's not (yet) minted.
-    /// @param tokenId The queried id.
-    error NonExistentToken(uint256 tokenId);
 }
