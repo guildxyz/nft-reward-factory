@@ -45,7 +45,7 @@ describe("GuildRewardNFTFactory", () => {
 
     expect(await upgraded.treasury()).to.eq(treasury.address);
     expect(await upgraded.validSigner()).to.eq(signer.address);
-    // expect(await upgraded.owner()).to.eq(wallet0.address);
+    expect(await upgraded.owner()).to.eq(wallet0.address);
   });
 
   it("should deploy and initialize clones", async () => {
