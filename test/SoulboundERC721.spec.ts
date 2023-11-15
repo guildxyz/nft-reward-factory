@@ -53,4 +53,11 @@ describe("SoulboundERC721", () => {
       nft["safeTransferFrom(address,address,uint256,bytes)"](wallet0.address, randomWallet.address, 0, ethers.ZeroHash)
     ).to.be.revertedWithCustomError(BasicGuildRewardNFT, "Soulbound");
   });
+
+  it("should have a locked function that throws for not minted tokens", async () => {
+    const tokenId = 1;
+    await expect(nft.locked(tokenId))
+      .to.be.revertedWithCustomError(BasicGuildRewardNFT, "NonExistentToken")
+      .withArgs(tokenId);
+  });
 });
