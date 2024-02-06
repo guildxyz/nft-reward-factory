@@ -1,4 +1,7 @@
-import { ethers, upgrades } from "hardhat";
+import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+import "dotenv/config";
+import * as hre from "hardhat";
+import { Wallet } from "zksync-ethers";
 
 // CONFIG
 const treasury = "0x..."; // The address where the collected fees will go.
@@ -9,13 +12,21 @@ const validSigner = "0x..."; // The address that signs the parameters for claimi
 async function main() {
   const contractName = "GuildRewardNFTFactory";
 
-  const GuildRewardNFTFactory = await ethers.getContractFactory(contractName);
-  const guildRewardNFTFactory = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury, fee, validSigner], {
-    kind: "uups"
-  });
+  const zkWallet = new Wallet(process.env.PRIVATE_KEY!);
 
-  const network = await ethers.provider.getNetwork();
-  console.log(`Deploying ${contractName} to ${network.name !== "unknown" ? network.name : network.chainId}...`);
+  const deployer = new Deployer(hre, zkWallet);
+
+  const contract = await deployer.loadArtifact(contractName);
+  const guildRewardNFTFactory = await hre.zkUpgrades.deployProxy(
+    deployer.zkWallet,
+    contract,
+    [treasury, fee, validSigner],
+    {
+      initializer: "initialize"
+    }
+  );
+
+  console.log(`Deploying ${contractName} to zkSync...`);
   console.log(`Tx hash: ${guildRewardNFTFactory.deploymentTransaction()?.hash}`);
 
   await guildRewardNFTFactory.waitForDeployment();

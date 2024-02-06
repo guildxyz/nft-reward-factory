@@ -1,4 +1,7 @@
-import { ethers } from "hardhat";
+import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
+import "dotenv/config";
+import * as hre from "hardhat";
+import { Wallet } from "zksync-ethers";
 
 // CONFIG
 const factoryAddress = "0x..."; /// The address of the proxy to be used when interacting with the factory.
@@ -13,11 +16,14 @@ const tokenFee = 0; // The price of every mint in wei.
 async function main() {
   const contractName = "BasicGuildRewardNFT";
 
-  const BasicGuildRewardNFT = await ethers.getContractFactory(contractName);
-  const basicGuildRewardNFT = await BasicGuildRewardNFT.deploy();
+  const zkWallet = new Wallet(process.env.PRIVATE_KEY!);
 
-  const network = await ethers.provider.getNetwork();
-  console.log(`Deploying ${contractName} to ${network.name !== "unknown" ? network.name : network.chainId}...`);
+  const deployer = new Deployer(hre, zkWallet);
+
+  const contract = await deployer.loadArtifact(contractName);
+  const basicGuildRewardNFT = await deployer.deploy(contract);
+
+  console.log(`Deploying ${contractName} to zkSync...`);
   console.log(`Tx hash: ${basicGuildRewardNFT.deploymentTransaction()?.hash}`);
 
   await basicGuildRewardNFT.waitForDeployment();

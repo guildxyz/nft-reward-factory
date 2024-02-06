@@ -3,7 +3,9 @@ import { ethers, upgrades } from "hardhat";
 const factoryAddress = "0x..."; // The address where the contract was deployed (proxy).
 
 async function main() {
-  const GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
+  const contractName = "GuildRewardNFTFactory";
+
+  const GuildRewardNFTFactory = await ethers.getContractFactory(contractName);
   const guildRewardNFTFactory = await upgrades.upgradeProxy(factoryAddress, GuildRewardNFTFactory, {
     kind: "uups",
     unsafeSkipStorageCheck: true
@@ -11,12 +13,11 @@ async function main() {
   });
 
   const network = await ethers.provider.getNetwork();
-  console.log(`Deploying contract to ${network.name !== "unknown" ? network.name : network.chainId}...`);
-  console.log(`Tx hash: ${guildRewardNFTFactory.deploymentTransaction()?.hash}`);
+  console.log(`Upgrading ${contractName} on ${network.name !== "unknown" ? network.name : network.chainId}...`);
 
   await guildRewardNFTFactory.waitForDeployment();
 
-  console.log("GuildRewardNFTFactory deployed to", await guildRewardNFTFactory.getAddress());
+  console.log(`${contractName} upgraded to:`, await guildRewardNFTFactory.getAddress());
 }
 
 main().catch((error) => {
