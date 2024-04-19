@@ -39,16 +39,17 @@ contract GuildRewardNFTFactory is
         address payable tokenTreasury,
         uint256 tokenFee
     ) external {
-        address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementations[ContractType.BASIC_NFT]);
+        ContractType contractType = ContractType.BASIC_NFT;
+        address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementations[contractType]);
         IBasicGuildRewardNFT deployedClone = IBasicGuildRewardNFT(deployedCloneAddress);
 
         deployedClone.initialize(name, symbol, cid, tokenOwner, tokenTreasury, tokenFee, address(this));
 
         deployedTokenContracts[msg.sender].push(
-            Deployment({ contractAddress: deployedCloneAddress, contractType: ContractType.BASIC_NFT })
+            Deployment({ contractAddress: deployedCloneAddress, contractType: contractType })
         );
 
-        emit RewardNFTDeployed(msg.sender, deployedCloneAddress);
+        emit RewardNFTDeployed(msg.sender, deployedCloneAddress, contractType);
     }
 
     function setNFTImplementation(ContractType contractType, address newNFT) external onlyOwner {

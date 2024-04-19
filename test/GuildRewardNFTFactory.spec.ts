@@ -66,7 +66,7 @@ describe("GuildRewardNFTFactory", () => {
   it("should emit RewardNFTDeployed event", async () => {
     await expect(factory.deployBasicNFT(sampleName, sampleSymbol, cids[0], wallet0.address, treasury.address, 0))
       .to.emit(factory, "RewardNFTDeployed")
-      .withArgs(wallet0.address, anyValue);
+      .withArgs(wallet0.address, anyValue, ContractType.BASIC_NFT);
   });
 
   context("#setNFTImplementation", () => {

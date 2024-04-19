@@ -72,7 +72,8 @@ interface IGuildRewardNFTFactory {
     /// @notice Event emitted when a new NFT is deployed.
     /// @param deployer The address that deployed the token.
     /// @param tokenAddress The address of the token.
-    event RewardNFTDeployed(address deployer, address tokenAddress);
+    /// @param contractType The type of the NFT deployed.
+    event RewardNFTDeployed(address deployer, address tokenAddress, ContractType contractType);
 
     /// @notice Event emitted when the validSigner is changed.
     /// @param newValidSigner The new address of validSigner.
