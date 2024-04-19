@@ -2,6 +2,7 @@
 pragma solidity 0.8.19;
 
 import { IBasicGuildRewardNFT } from "./interfaces/IBasicGuildRewardNFT.sol";
+import { IConfigurableGuildRewardNFT } from "./interfaces/IConfigurableGuildRewardNFT.sol";
 import { IGuildRewardNFTFactory } from "./interfaces/IGuildRewardNFTFactory.sol";
 import { TreasuryManager } from "./utils/TreasuryManager.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -44,6 +45,20 @@ contract GuildRewardNFTFactory is
         IBasicGuildRewardNFT deployedClone = IBasicGuildRewardNFT(deployedCloneAddress);
 
         deployedClone.initialize(name, symbol, cid, tokenOwner, tokenTreasury, tokenFee, address(this));
+
+        deployedTokenContracts[msg.sender].push(
+            Deployment({ contractAddress: deployedCloneAddress, contractType: contractType })
+        );
+
+        emit RewardNFTDeployed(msg.sender, deployedCloneAddress, contractType);
+    }
+
+    function deployConfigurableNFT(ConfigurableNFTConfig memory nftConfig) external {
+        ContractType contractType = ContractType.CONFIGURABLE_NFT;
+        address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementations[contractType]);
+        IConfigurableGuildRewardNFT deployedClone = IConfigurableGuildRewardNFT(deployedCloneAddress);
+
+        deployedClone.initialize(nftConfig, address(this));
 
         deployedTokenContracts[msg.sender].push(
             Deployment({ contractAddress: deployedCloneAddress, contractType: contractType })

@@ -6,7 +6,29 @@ interface IGuildRewardNFTFactory {
     /// @notice The type of the contract.
     /// @dev Used as an identifier. Should be expanded in future updates.
     enum ContractType {
-        BASIC_NFT
+        BASIC_NFT,
+        CONFIGURABLE_NFT
+    }
+
+    /// @notice Input parameters of the deployConfigurableNFT function.
+    /// @dev Needed to prevent "stack too deep" errors.
+    /// @param name The name of the NFT to be created.
+    /// @param symbol The symbol of the NFT to be created.
+    /// @param cid The cid used to construct the tokenURI of the NFT to be created.
+    /// @param tokenOwner The address that will be the owner of the deployed token.
+    /// @param tokenTreasury The address that will collect the prices of the minted deployed tokens.
+    /// @param tokenFee The price of every mint in wei.
+    /// @param soulbound Whether the token should be soulbound.
+    /// @param mintableAmountPerUser The maximum amount a user will be able to mint from the deployed token.
+    struct ConfigurableNFTConfig {
+        string name;
+        string symbol;
+        string cid;
+        address tokenOwner;
+        address payable treasury;
+        uint256 tokenFee;
+        bool soulbound;
+        uint256 mintableAmountPerUser;
     }
 
     /// @notice Information about a specific deployment.
@@ -47,6 +69,10 @@ interface IGuildRewardNFTFactory {
         address payable tokenTreasury,
         uint256 tokenFee
     ) external;
+
+    /// @notice Deploys a minimal proxy for a configurable NFT.
+    /// @param nftConfig The config to initialize the token to be deployed with.
+    function deployConfigurableNFT(ConfigurableNFTConfig memory nftConfig) external;
 
     /// @notice Returns the reward NFT addresses for a guild.
     /// @param deployer The address that deployed the tokens.
