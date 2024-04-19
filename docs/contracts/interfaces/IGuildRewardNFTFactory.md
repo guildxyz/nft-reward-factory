@@ -84,6 +84,22 @@ Deploys a minimal proxy for a basic NFT.
 | `tokenTreasury` | address payable | The address that will collect the prices of the minted deployed tokens. |
 | `tokenFee` | uint256 | The price of every mint in wei. |
 
+### deployConfigurableNFT
+
+```solidity
+function deployConfigurableNFT(
+    struct IGuildRewardNFTFactory.ConfigurableNFTConfig nftConfig
+) external
+```
+
+Deploys a minimal proxy for a configurable NFT.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `nftConfig` | struct IGuildRewardNFTFactory.ConfigurableNFTConfig | The config to initialize the token to be deployed with. |
+
 ### getDeployedTokenContracts
 
 ```solidity
@@ -167,7 +183,8 @@ Event emitted when an NFT implementation is changed.
 ```solidity
 event RewardNFTDeployed(
     address deployer,
-    address tokenAddress
+    address tokenAddress,
+    enum IGuildRewardNFTFactory.ContractType contractType
 )
 ```
 
@@ -179,6 +196,7 @@ Event emitted when a new NFT is deployed.
 | :--- | :--- | :---------- |
 | `deployer` | address | The address that deployed the token. |
 | `tokenAddress` | address | The address of the token. |
+| `contractType` | enum IGuildRewardNFTFactory.ContractType | The type of the NFT deployed. |
 ### ValidSignerChanged
 
 ```solidity
@@ -201,7 +219,22 @@ Event emitted when the validSigner is changed.
 
 ```solidity
 enum ContractType {
-  BASIC_NFT
+  BASIC_NFT,
+  CONFIGURABLE_NFT
+}
+```
+### ConfigurableNFTConfig
+
+```solidity
+struct ConfigurableNFTConfig {
+  string name;
+  string symbol;
+  string cid;
+  address tokenOwner;
+  address payable treasury;
+  uint256 tokenFee;
+  bool soulbound;
+  uint256 mintableAmountPerUser;
 }
 ```
 ### Deployment

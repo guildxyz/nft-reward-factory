@@ -89,6 +89,22 @@ Deploys a minimal proxy for a basic NFT.
 | `tokenTreasury` | address payable | The address that will collect the prices of the minted deployed tokens. |
 | `tokenFee` | uint256 | The price of every mint in wei. |
 
+### deployConfigurableNFT
+
+```solidity
+function deployConfigurableNFT(
+    struct IGuildRewardNFTFactory.ConfigurableNFTConfig nftConfig
+) external
+```
+
+Deploys a minimal proxy for a configurable NFT.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `nftConfig` | struct IGuildRewardNFTFactory.ConfigurableNFTConfig | The config to initialize the token to be deployed with. |
+
 ### setNFTImplementation
 
 ```solidity
