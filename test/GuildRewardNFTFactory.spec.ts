@@ -9,6 +9,8 @@ const sampleName = "Test Guild Passport";
 const sampleSymbol = "TGP";
 const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQGuExUjtyTRvZ2FF525Ww6PBNWWgkkLj"];
 const sampleFee = 69;
+const sampleSoulbound = true;
+const sampleMintableAmountPerUser = 1;
 
 // CONTRACTS
 let GuildRewardNFTFactory: ContractFactory;
@@ -21,7 +23,8 @@ let treasury: SignerWithAddress;
 let signer: SignerWithAddress;
 
 enum ContractType {
-  BASIC_NFT
+  BASIC_NFT,
+  CONFIGURABLE_NFT
 }
 
 describe("GuildRewardNFTFactory", () => {
@@ -48,7 +51,7 @@ describe("GuildRewardNFTFactory", () => {
     expect(await upgraded.owner()).to.eq(wallet0.address);
   });
 
-  it("should deploy and initialize clones", async () => {
+  it("should deploy and initialize clones of BasicGuildRewardNFT", async () => {
     const basicGuildRewardNFT = await ethers.getContractFactory("BasicGuildRewardNFT");
     const nftMain = (await basicGuildRewardNFT.deploy()) as Contract;
     await nftMain.waitForDeployment();
@@ -61,6 +64,31 @@ describe("GuildRewardNFTFactory", () => {
     expect(await nft.symbol()).to.eq(sampleSymbol);
     expect(await nft.owner()).to.eq(randomWallet.address);
     expect(await nft.fee()).to.eq(sampleFee);
+  });
+
+  it("should deploy and initialize clones of ConfigurableGuildRewardNFT", async () => {
+    const configurableGuildRewardNFT = await ethers.getContractFactory("ConfigurableGuildRewardNFT");
+    const nftMain = (await configurableGuildRewardNFT.deploy()) as Contract;
+    await nftMain.waitForDeployment();
+    await factory.setNFTImplementation(ContractType.CONFIGURABLE_NFT, nftMain);
+
+    await factory.deployConfigurableNFT({
+      name: sampleName,
+      symbol: sampleSymbol,
+      cid: cids[0],
+      tokenOwner: randomWallet.address,
+      treasury: treasury.address,
+      tokenFee: sampleFee,
+      soulbound: sampleSoulbound,
+      mintableAmountPerUser: sampleMintableAmountPerUser
+    });
+    const nftAddresses = await factory.getDeployedTokenContracts(wallet0.address);
+    const nft = nftMain.attach(nftAddresses[0].contractAddress) as Contract;
+    expect(await nft.name()).to.eq(sampleName);
+    expect(await nft.symbol()).to.eq(sampleSymbol);
+    expect(await nft.owner()).to.eq(randomWallet.address);
+    expect(await nft.fee()).to.eq(sampleFee);
+    expect(await nft.mintableAmountPerUser()).to.eq(sampleMintableAmountPerUser);
   });
 
   it("should emit RewardNFTDeployed event", async () => {
