@@ -88,6 +88,17 @@ contract ConfigurableGuildRewardNFT is
         }
     }
 
+    function setLocked(bool newLocked) external onlyOwner {
+        soulbound = newLocked;
+        if (newLocked) emit Locked(0);
+        else emit Unlocked(0);
+    }
+
+    function setMintableAmountPerUser(uint256 newAmount) external onlyOwner {
+        mintableAmountPerUser = newAmount;
+        emit MintableAmountPerUserChanged(newAmount);
+    }
+
     function updateTokenURI(string calldata newCid) external onlyOwner {
         cid = newCid;
         emit MetadataUpdate();

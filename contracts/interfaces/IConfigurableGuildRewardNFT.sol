@@ -43,6 +43,16 @@ interface IConfigurableGuildRewardNFT {
     /// @param signature The following signed by validSigner: amount, receiver, userId, chainId, the contract's address.
     function burn(uint256[] calldata tokenIds, uint256 userId, bytes calldata signature) external;
 
+    /// Sets the locked (i.e. soulboundness) status of all of the tokens in this NFT.
+    /// @dev Only callable by the owner.
+    /// @param newLocked Whether the token should be soulbound or not.
+    function setLocked(bool newLocked) external;
+
+    /// Sets the amount of tokens a user can mint from the token.
+    /// @dev Only callable by the owner.
+    /// @param newAmount The new amount a user can mint from the token.
+    function setMintableAmountPerUser(uint256 newAmount) external;
+
     /// @notice Updates the cid for tokenURI.
     /// @dev Only callable by the owner.
     /// @param newCid The new cid that points to the updated image.
@@ -55,6 +65,10 @@ interface IConfigurableGuildRewardNFT {
 
     /// @notice Event emitted whenever the cid is updated.
     event MetadataUpdate();
+
+    /// Event emitted when the mintableAmountPerUser is changed.
+    /// @param newAmount The new amount a user can mint from the token.
+    event MintableAmountPerUserChanged(uint256 newAmount);
 
     /// @notice Error thrown when the token is already claimed.
     error AlreadyClaimed();

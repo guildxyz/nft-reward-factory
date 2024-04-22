@@ -114,6 +114,42 @@ Burns tokens from the sender.
 | `userId` | uint256 | The id of the user on Guild. |
 | `signature` | bytes | The following signed by validSigner: amount, receiver, userId, chainId, the contract's address. |
 
+### setLocked
+
+```solidity
+function setLocked(
+    bool newLocked
+) external
+```
+
+Sets the locked (i.e. soulboundness) status of all of the tokens in this NFT.
+
+Only callable by the owner.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `newLocked` | bool | Whether the token should be soulbound or not. |
+
+### setMintableAmountPerUser
+
+```solidity
+function setMintableAmountPerUser(
+    uint256 newAmount
+) external
+```
+
+Sets the amount of tokens a user can mint from the token.
+
+Only callable by the owner.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `newAmount` | uint256 | The new amount a user can mint from the token. |
+
 ### updateTokenURI
 
 ```solidity
