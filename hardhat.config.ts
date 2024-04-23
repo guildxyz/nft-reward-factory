@@ -107,9 +107,9 @@ const config: HardhatUserConfig = {
     }
   },
   gasReporter: {
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY || "",
     enabled: true,
-    currency: "USD",
-    showTimeSpent: true
+    currency: "USD"
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY
