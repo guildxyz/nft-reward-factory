@@ -69,7 +69,7 @@ contract ConfigurableGuildRewardNFT is
         }
 
         // Fee collection
-        if (msg.value == guildFee + fee) {
+        if (msg.value == amount * (guildFee + fee)) {
             guildTreasury.sendEther(amount * guildFee);
             treasury.sendEther(amount * fee);
         } else revert IncorrectFee(msg.value, amount * (guildFee + fee));
