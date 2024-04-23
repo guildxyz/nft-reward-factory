@@ -20,7 +20,6 @@ contract BasicGuildRewardNFT is
     TreasuryManager
 {
     using ECDSA for bytes32;
-    using LibTransfer for address;
     using LibTransfer for address payable;
 
     address public factoryProxy;
