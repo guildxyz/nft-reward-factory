@@ -7,8 +7,7 @@ async function main() {
 
   const GuildRewardNFTFactory = await ethers.getContractFactory(contractName);
   const guildRewardNFTFactory = await upgrades.upgradeProxy(factoryAddress, GuildRewardNFTFactory, {
-    kind: "uups",
-    unsafeSkipStorageCheck: true
+    kind: "uups"
     // call: { fn: "reInitialize", args: [] }
   });
 
