@@ -26,6 +26,12 @@ contract OptionallySoulboundERC721 is ERC721Upgradeable, ERC721EnumerableUpgrade
     /// @notice Error thrown when a function's execution is not possible, because the soulbound mode is on.
     error Soulbound();
 
+    /// @notice Reverts the function execution if the token is soulbound.
+    modifier checkSoulbound() {
+        if (soulbound) revert Soulbound();
+        _;
+    }
+
     // solhint-disable-next-line func-name-mixedcase
     function __OptionallySoulboundERC721_init(
         string memory name_,
@@ -52,24 +58,24 @@ contract OptionallySoulboundERC721 is ERC721Upgradeable, ERC721EnumerableUpgrade
         return soulbound;
     }
 
-    function approve(address to, uint256 tokenId) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
-        if (soulbound) revert Soulbound();
+    function approve(
+        address to,
+        uint256 tokenId
+    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) checkSoulbound {
         super.approve(to, tokenId);
     }
 
     function setApprovalForAll(
         address operator,
         bool approved
-    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
-        if (soulbound) revert Soulbound();
+    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) checkSoulbound {
         super.setApprovalForAll(operator, approved);
     }
 
     function isApprovedForAll(
         address owner,
         address operator
-    ) public view virtual override(IERC721Upgradeable, ERC721Upgradeable) returns (bool) {
-        if (soulbound) revert Soulbound();
+    ) public view virtual override(IERC721Upgradeable, ERC721Upgradeable) checkSoulbound returns (bool) {
         return super.isApprovedForAll(owner, operator);
     }
 
@@ -77,8 +83,7 @@ contract OptionallySoulboundERC721 is ERC721Upgradeable, ERC721EnumerableUpgrade
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
-        if (soulbound) revert Soulbound();
+    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) checkSoulbound {
         super.transferFrom(from, to, tokenId);
     }
 
@@ -86,8 +91,7 @@ contract OptionallySoulboundERC721 is ERC721Upgradeable, ERC721EnumerableUpgrade
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
-        if (soulbound) revert Soulbound();
+    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) checkSoulbound {
         super.safeTransferFrom(from, to, tokenId);
     }
 
@@ -96,8 +100,7 @@ contract OptionallySoulboundERC721 is ERC721Upgradeable, ERC721EnumerableUpgrade
         address to,
         uint256 tokenId,
         bytes memory data
-    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
-        if (soulbound) revert Soulbound();
+    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) checkSoulbound {
         super.safeTransferFrom(from, to, tokenId, data);
     }
 

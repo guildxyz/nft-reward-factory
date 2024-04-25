@@ -198,6 +198,16 @@ Used for minting/burning even when soulbound.
 | `firstTokenId` | uint256 |  |
 | `batchSize` | uint256 |  |
 
+## Modifiers
+
+### checkSoulbound
+
+```solidity
+modifier checkSoulbound()
+```
+
+Reverts the function execution if the token is soulbound.
+
 ## Custom errors
 
 ### NonExistentToken
