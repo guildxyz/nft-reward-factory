@@ -46,10 +46,9 @@ contract ConfigurableGuildRewardNFT is
     }
 
     function claim(uint256 amount, address receiver, uint256 userId, bytes calldata signature) external payable {
-        if (
-            amount > mintableAmountPerUser - balanceOf(receiver) ||
-            amount > mintableAmountPerUser - claimedTokens[userId]
-        ) revert AlreadyClaimed();
+        uint256 mintableAmount = mintableAmountPerUser;
+        if (amount > mintableAmount - balanceOf(receiver) || amount > mintableAmount - claimedTokens[userId])
+            revert AlreadyClaimed();
         if (!isValidSignature(amount, receiver, userId, signature)) revert IncorrectSignature();
 
         (uint256 guildFee, address payable guildTreasury) = ITreasuryManager(factoryProxy).getFeeData();
@@ -59,32 +58,42 @@ contract ConfigurableGuildRewardNFT is
         uint256 firstTokenId = totalSupply();
         uint256 lastTokenId = firstTokenId + amount - 1;
 
-        for (uint256 tokenId = firstTokenId; tokenId <= lastTokenId; ++tokenId) {
+        for (uint256 tokenId = firstTokenId; tokenId <= lastTokenId; ) {
             _safeMint(receiver, tokenId);
 
             if (soulbound) emit Locked(tokenId);
 
             emit Claimed(receiver, tokenId);
+
+            unchecked {
+                ++tokenId;
+            }
         }
 
         // Fee collection
-        if (msg.value == amount * (guildFee + fee)) {
-            guildTreasury.sendEther(amount * guildFee);
-            treasury.sendEther(amount * fee);
-        } else revert IncorrectFee(msg.value, amount * (guildFee + fee));
+        uint256 guildAmount = amount * guildFee;
+        uint256 ownerAmount = amount * fee;
+        if (msg.value == guildAmount + ownerAmount) {
+            guildTreasury.sendEther(guildAmount);
+            treasury.sendEther(ownerAmount);
+        } else revert IncorrectFee(msg.value, guildAmount + ownerAmount);
     }
 
     function burn(uint256[] calldata tokenIds, uint256 userId, bytes calldata signature) external {
         uint256 amount = tokenIds.length;
         if (!isValidSignature(amount, msg.sender, userId, signature)) revert IncorrectSignature();
 
-        for (uint256 i; i < amount; ++i) {
+        for (uint256 i; i < amount; ) {
             uint256 tokenId = tokenIds[i];
-
             if (msg.sender != ownerOf(tokenId)) revert IncorrectSender();
-            claimedTokens[userId]--;
             _burn(tokenId);
+
+            unchecked {
+                ++i;
+            }
         }
+
+        claimedTokens[userId] -= amount;
     }
 
     function setLocked(bool newLocked) external onlyOwner {
