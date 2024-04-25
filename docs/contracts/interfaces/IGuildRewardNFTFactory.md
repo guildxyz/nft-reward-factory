@@ -81,7 +81,7 @@ Deploys a minimal proxy for a basic NFT.
 | `symbol` | string | The symbol of the NFT to be created. |
 | `cid` | string | The cid used to construct the tokenURI of the NFT to be created. |
 | `tokenOwner` | address | The address that will be the owner of the deployed token. |
-| `tokenTreasury` | address payable | The address that will collect the prices of the minted deployed tokens. |
+| `tokenTreasury` | address payable | The address that will collect the prices of the minted tokens. |
 | `tokenFee` | uint256 | The price of every mint in wei. |
 
 ### deployConfigurableNFT

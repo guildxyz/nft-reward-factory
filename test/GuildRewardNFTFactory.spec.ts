@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { Contract, ContractFactory } from "ethers";
 import { ethers, upgrades } from "hardhat";
 
-/// NFT CONFIG
+// NFT CONFIG
 const sampleName = "Test Guild Passport";
 const sampleSymbol = "TGP";
 const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQGuExUjtyTRvZ2FF525Ww6PBNWWgkkLj"];

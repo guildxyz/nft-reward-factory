@@ -16,7 +16,7 @@ interface IGuildRewardNFTFactory {
     /// @param symbol The symbol of the NFT to be created.
     /// @param cid The cid used to construct the tokenURI of the NFT to be created.
     /// @param tokenOwner The address that will be the owner of the deployed token.
-    /// @param tokenTreasury The address that will collect the prices of the minted deployed tokens.
+    /// @param tokenTreasury The address that will collect the prices of the minted tokens.
     /// @param tokenFee The price of every mint in wei.
     /// @param soulbound Whether the token should be soulbound.
     /// @param mintableAmountPerUser The maximum amount a user will be able to mint from the deployed token.
@@ -59,7 +59,7 @@ interface IGuildRewardNFTFactory {
     /// @param symbol The symbol of the NFT to be created.
     /// @param cid The cid used to construct the tokenURI of the NFT to be created.
     /// @param tokenOwner The address that will be the owner of the deployed token.
-    /// @param tokenTreasury The address that will collect the prices of the minted deployed tokens.
+    /// @param tokenTreasury The address that will collect the prices of the minted tokens.
     /// @param tokenFee The price of every mint in wei.
     function deployBasicNFT(
         string calldata name,
