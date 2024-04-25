@@ -229,7 +229,7 @@ describe("ConfigurableGuildRewardNFT", () => {
         expect(await nftMultipleMints.ownerOf(tokenId)).to.eq(wallet0.address);
       });
 
-      it("should emit Locked event when minting", async () => {
+      it("should emit Locked event when minting soulbound tokens", async () => {
         const tokenId = await nft.totalSupply();
         await expect(
           nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, { value: fee + nftConfig.tokenFee })

@@ -62,6 +62,7 @@ contract ConfigurableGuildRewardNFT is
             _safeMint(receiver, tokenId);
 
             if (soulbound) emit Locked(tokenId);
+            else emit Unlocked(tokenId);
 
             emit Claimed(receiver, tokenId);
 
