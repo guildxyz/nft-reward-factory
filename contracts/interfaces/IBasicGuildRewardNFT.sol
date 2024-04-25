@@ -13,8 +13,8 @@ interface IBasicGuildRewardNFT {
     /// @return claimed Whether the address has claimed their token.
     function hasClaimed(address account) external view returns (bool claimed);
 
-    /// @notice Whether a userId has minted a token.
-    /// @dev Used to prevent double mints in the same block.
+    /// @notice Whether a userId has claimed a token.
+    /// @dev Used to prevent double claims in the same block.
     /// @param userId The id of the user on Guild.
     /// @return claimed Whether the userId has claimed any tokens.
     function hasTheUserIdClaimed(uint256 userId) external view returns (bool claimed);
@@ -23,10 +23,10 @@ interface IBasicGuildRewardNFT {
     /// @dev Initializer function callable only once.
     /// @param name The name of the token.
     /// @param symbol The symbol of the token.
-    /// @param cid The cid used to construct the tokenURI for the token to be minted.
-    /// @param tokenOwner The address that will be the owner of the deployed token.
+    /// @param cid The cid used to construct the tokenURI for the token to be deployed.
+    /// @param tokenOwner The address that will be the owner of the token.
     /// @param treasury The address that will receive the price paid for the token.
-    /// @param tokenFee The price of every mint in wei.
+    /// @param tokenFee The price of every claim in wei.
     /// @param factoryProxyAddress The address of the factory.
     function initialize(
         string memory name,
@@ -68,7 +68,7 @@ interface IBasicGuildRewardNFT {
 
     /// @notice Error thrown when an incorrect amount of fee is attempted to be paid.
     /// @param paid The amount of funds received.
-    /// @param requiredAmount The amount of fees required for minting.
+    /// @param requiredAmount The amount of fees required for claiming.
     error IncorrectFee(uint256 paid, uint256 requiredAmount);
 
     /// @notice Error thrown when the sender is not permitted to do a specific action.

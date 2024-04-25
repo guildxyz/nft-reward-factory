@@ -1,4 +1,4 @@
-# BasicGuildRewardNFT
+# ConfigurableGuildRewardNFT
 
 An NFT distributed as a reward for Guild.xyz users.
 
@@ -13,6 +13,21 @@ address factoryProxy
 The address of the proxy to be used when interacting with the factory.
 
 _Used to access the factory's address when interacting through minimal proxies._
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
+### mintableAmountPerUser
+
+```solidity
+uint256 mintableAmountPerUser
+```
+
+The maximum amount of tokens a Guild user can claim from the token.
+
+_Doesn't matter if they are claimed in the same transaction or separately._
 
 #### Return Values
 
@@ -41,32 +56,27 @@ The number of claimed tokens by userIds.
 
 ```solidity
 function initialize(
-    string name,
-    string symbol,
-    string _cid,
-    address tokenOwner,
-    address payable treasury,
-    uint256 tokenFee,
+    struct IGuildRewardNFTFactory.ConfigurableNFTConfig nftConfig,
     address factoryProxyAddress
 ) public
 ```
+
+Sets metadata and the associated addresses.
+
+Initializer function callable only once.
 
 #### Parameters
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `name` | string |  |
-| `symbol` | string |  |
-| `_cid` | string |  |
-| `tokenOwner` | address |  |
-| `treasury` | address payable |  |
-| `tokenFee` | uint256 |  |
-| `factoryProxyAddress` | address |  |
+| `nftConfig` | struct IGuildRewardNFTFactory.ConfigurableNFTConfig | See struct ConfigurableNFTConfig in IGuildRewardNFTFactory. |
+| `factoryProxyAddress` | address | The address of the factory. |
 
 ### claim
 
 ```solidity
 function claim(
+    uint256 amount,
     address receiver,
     uint256 userId,
     bytes signature
@@ -79,29 +89,66 @@ Claims tokens to the given address.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
+| `amount` | uint256 | The amount of tokens to mint. Should be less or equal to mintableAmountPerUser. |
 | `receiver` | address | The address that receives the token. |
 | `userId` | uint256 | The id of the user on Guild. |
-| `signature` | bytes | The following signed by validSigner: receiver, userId, chainId, the contract's address. |
+| `signature` | bytes | The following signed by validSigner: amount, receiver, userId, chainId, the contract's address. |
 
 ### burn
 
 ```solidity
 function burn(
-    uint256 tokenId,
+    uint256[] tokenIds,
     uint256 userId,
     bytes signature
 ) external
 ```
 
-Burns a token from the sender.
+Burns tokens from the sender.
 
 #### Parameters
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `tokenId` | uint256 | The id of the token to burn. |
+| `tokenIds` | uint256[] | The tokenIds to burn. All of them should belong to userId. |
 | `userId` | uint256 | The id of the user on Guild. |
-| `signature` | bytes | The following signed by validSigner: receiver, userId, chainId, the contract's address. |
+| `signature` | bytes | The following signed by validSigner: amount, receiver, userId, chainId, the contract's address. |
+
+### setLocked
+
+```solidity
+function setLocked(
+    bool newLocked
+) external
+```
+
+Sets the locked (i.e. soulboundness) status of all of the tokens in this NFT.
+
+Only callable by the owner.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `newLocked` | bool | Whether the token should be soulbound or not. |
+
+### setMintableAmountPerUser
+
+```solidity
+function setMintableAmountPerUser(
+    uint256 newAmount
+) external
+```
+
+Sets the amount of tokens a user can mint from the token.
+
+Only callable by the owner.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `newAmount` | uint256 | The new amount a user can mint from the token. |
 
 ### updateTokenURI
 
@@ -121,38 +168,17 @@ Only callable by the owner.
 | :--- | :--- | :---------- |
 | `newCid` | string | The new cid that points to the updated image. |
 
-### hasClaimed
+### balanceOf
 
 ```solidity
-function hasClaimed(
-    address account
-) external returns (bool claimed)
-```
-
-Returns true if the address has already claimed their token.
-
-#### Parameters
-
-| Name | Type | Description |
-| :--- | :--- | :---------- |
-| `account` | address | The user's address. |
-
-#### Return Values
-
-| Name | Type | Description |
-| :--- | :--- | :---------- |
-| `claimed` | bool | Whether the address has claimed their token. |
-### hasTheUserIdClaimed
-
-```solidity
-function hasTheUserIdClaimed(
+function balanceOf(
     uint256 userId
-) external returns (bool claimed)
+) external returns (uint256 amount)
 ```
 
-Whether a userId has claimed a token.
+Returns the number of tokens the user claimed.
 
-Used to prevent double claims in the same block.
+Analogous to balanceOf(address), but works with Guild user ids.
 
 #### Parameters
 
@@ -164,7 +190,7 @@ Used to prevent double claims in the same block.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `claimed` | bool | Whether the userId has claimed any tokens. |
+| `amount` | uint256 | The number of tokens the userId has claimed. |
 ### tokenURI
 
 ```solidity
@@ -185,6 +211,7 @@ See {IERC721Metadata-tokenURI}.
 
 ```solidity
 function isValidSignature(
+    uint256 amount,
     address receiver,
     uint256 userId,
     bytes signature
@@ -197,6 +224,7 @@ Checks the validity of the signature for the given params.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
+| `amount` | uint256 |  |
 | `receiver` | address |  |
 | `userId` | uint256 |  |
 | `signature` | bytes |  |
