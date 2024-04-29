@@ -15,6 +15,11 @@ interface IConfigurableGuildRewardNFT {
     /// @return mintableAmountPerUser The amount of tokens.
     function mintableAmountPerUser() external view returns (uint256 mintableAmountPerUser);
 
+    /// @notice The time interval while a signature is valid.
+    /// @return validity The time interval in seconds.
+    // solhint-disable func-name-mixedcase
+    function SIGNATURE_VALIDITY() external pure returns (uint256 validity);
+
     /// @notice Returns the number of tokens the user claimed.
     /// @dev Analogous to balanceOf(address), but works with Guild user ids.
     /// @param userId The id of the user on Guild.
@@ -34,14 +39,22 @@ interface IConfigurableGuildRewardNFT {
     /// @param amount The amount of tokens to mint. Should be less or equal to mintableAmountPerUser.
     /// @param receiver The address that receives the token.
     /// @param userId The id of the user on Guild.
-    /// @param signature The following signed by validSigner: amount, receiver, userId, chainId, the contract's address.
-    function claim(uint256 amount, address receiver, uint256 userId, bytes calldata signature) external payable;
+    /// @param signedAt The timestamp marking the time when the data were signed.
+    /// @param signature The following signed by validSigner: amount, signedAt, receiver, userId, chainId, the contract's address.
+    function claim(
+        uint256 amount,
+        address receiver,
+        uint256 userId,
+        uint256 signedAt,
+        bytes calldata signature
+    ) external payable;
 
     /// @notice Burns tokens from the sender.
     /// @param tokenIds The tokenIds to burn. All of them should belong to userId.
     /// @param userId The id of the user on Guild.
-    /// @param signature The following signed by validSigner: amount, receiver, userId, chainId, the contract's address.
-    function burn(uint256[] calldata tokenIds, uint256 userId, bytes calldata signature) external;
+    /// @param signedAt The timestamp marking the time when the data were signed.
+    /// @param signature The following signed by validSigner: amount, signedAt, receiver, userId, chainId, the contract's address.
+    function burn(uint256[] calldata tokenIds, uint256 userId, uint256 signedAt, bytes calldata signature) external;
 
     /// @notice Sets the locked (i.e. soulboundness) status of all of the tokens in this NFT.
     /// @dev Only callable by the owner.
@@ -72,6 +85,9 @@ interface IConfigurableGuildRewardNFT {
 
     /// @notice Error thrown when the token is already claimed.
     error AlreadyClaimed();
+
+    /// @notice Error thrown when the signature is already expired.
+    error ExpiredSignature();
 
     /// @notice Error thrown when an incorrect amount of fee is attempted to be paid.
     /// @param paid The amount of funds received.

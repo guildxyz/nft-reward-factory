@@ -33,6 +33,7 @@ let signer: SignerWithAddress;
 
 let chainId: BigNumberish;
 const sampleUserId = 42;
+const sampleSignedAt = Math.floor(Date.now() / 1000);
 
 enum ContractType {
   BASIC_NFT,
@@ -44,12 +45,13 @@ const createSignature = async (
   amount: BigNumberish,
   receiver: string,
   userId: number,
+  signedAt: number,
   chainid: BigNumberish,
   nftAddress: string
 ) => {
   const payload = ethers.AbiCoder.defaultAbiCoder().encode(
-    ["uint256", "address", "uint256", "uint256", "address"],
-    [amount, receiver, userId, chainid, nftAddress]
+    ["uint256", "uint256", "address", "uint256", "uint256", "address"],
+    [amount, signedAt, receiver, userId, chainid, nftAddress]
   );
   const payloadHash = ethers.keccak256(payload);
   return wallet.signMessage(ethers.getBytes(payloadHash));
@@ -105,29 +107,55 @@ describe("ConfigurableGuildRewardNFT", () => {
         sampleAmount,
         wallet0.address,
         sampleUserId,
+        sampleSignedAt,
         chainId,
         await nft.getAddress()
       );
     });
 
     context("#claim", () => {
+      it("should revert if the signature is expired", async () => {
+        const validity = await nft.SIGNATURE_VALIDITY();
+        const oldTimestamp = Math.floor(Date.now() / 1000) - Number(validity) - 10;
+        await expect(
+          nft.claim(
+            sampleAmount,
+            wallet0.address,
+            sampleUserId,
+            oldTimestamp,
+            await createSignature(
+              signer,
+              sampleAmount,
+              wallet0.address,
+              sampleUserId,
+              oldTimestamp,
+              chainId,
+              await nft.getAddress()
+            ),
+            {
+              value: fee + nftConfig.tokenFee
+            }
+          )
+        ).to.be.revertedWithCustomError(nft, "ExpiredSignature");
+      });
+
       it("should revert if the address has already claimed all of their tokens", async () => {
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
           value: fee + nftConfig.tokenFee
         });
         await expect(
-          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
             value: fee + nftConfig.tokenFee
           })
         ).to.be.revertedWithCustomError(nft, "AlreadyClaimed");
       });
 
       it("should revert if the userId has already claimed all of their tokens", async () => {
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
           value: fee + nftConfig.tokenFee
         });
         await expect(
-          nft.claim(sampleAmount, randomWallet.address, sampleUserId, sampleSignature, {
+          nft.claim(sampleAmount, randomWallet.address, sampleUserId, sampleSignedAt, sampleSignature, {
             value: fee + nftConfig.tokenFee
           })
         ).to.be.revertedWithCustomError(nft, "AlreadyClaimed");
@@ -135,13 +163,13 @@ describe("ConfigurableGuildRewardNFT", () => {
 
       it("should revert if the signature is incorrect", async () => {
         await expect(
-          nft.claim(sampleAmount, wallet0.address, sampleUserId, ethers.ZeroHash, {
+          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, ethers.ZeroHash, {
             value: fee + nftConfig.tokenFee
           })
         ).to.be.revertedWithCustomError(nft, "IncorrectSignature");
 
         await expect(
-          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature.slice(0, -2), {
+          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature.slice(0, -2), {
             value: fee + nftConfig.tokenFee
           })
         ).to.be.revertedWithCustomError(nft, "IncorrectSignature");
@@ -151,11 +179,13 @@ describe("ConfigurableGuildRewardNFT", () => {
             sampleAmount,
             wallet0.address,
             sampleUserId,
+            sampleSignedAt,
             await createSignature(
               signer,
               sampleAmount,
               randomWallet.address,
               sampleUserId,
+              sampleSignedAt,
               chainId,
               await nft.getAddress()
             ),
@@ -168,7 +198,7 @@ describe("ConfigurableGuildRewardNFT", () => {
 
       it("should increment the total supply", async () => {
         const totalSupply0 = await nft.totalSupply();
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
           value: fee + nftConfig.tokenFee
         });
         const totalSupply1 = await nft.totalSupply();
@@ -177,7 +207,7 @@ describe("ConfigurableGuildRewardNFT", () => {
 
       it("should increment the address' claimed tokens", async () => {
         const userBalance0 = await nft["balanceOf(address)"](wallet0.address);
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
           value: fee + nftConfig.tokenFee
         });
         const userBalance1 = await nft["balanceOf(address)"](wallet0.address);
@@ -186,7 +216,7 @@ describe("ConfigurableGuildRewardNFT", () => {
 
       it("should increment the userId's claimed tokens", async () => {
         const userBalance0 = await nft["balanceOf(uint256)"](sampleUserId);
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
           value: fee + nftConfig.tokenFee
         });
         const userBalance1 = await nft["balanceOf(uint256)"](sampleUserId);
@@ -198,7 +228,7 @@ describe("ConfigurableGuildRewardNFT", () => {
         const tokenId = totalSupply;
         expect(await nft["balanceOf(address)"](wallet0.address)).to.eq(0);
         await expect(nft.ownerOf(tokenId)).to.be.revertedWith("ERC721: invalid token ID");
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
           value: fee + nftConfig.tokenFee
         });
         expect(await nft["balanceOf(address)"](wallet0.address)).to.eq(1);
@@ -212,6 +242,7 @@ describe("ConfigurableGuildRewardNFT", () => {
           amount,
           wallet0.address,
           sampleUserId,
+          sampleSignedAt,
           chainId,
           await nftMultipleMints.getAddress()
         );
@@ -222,7 +253,7 @@ describe("ConfigurableGuildRewardNFT", () => {
         const tokenId = totalSupply;
         expect(await nftMultipleMints["balanceOf(address)"](wallet0.address)).to.eq(0);
         await expect(nftMultipleMints.ownerOf(tokenId)).to.be.revertedWith("ERC721: invalid token ID");
-        await nftMultipleMints.claim(amount, wallet0.address, sampleUserId, signature, {
+        await nftMultipleMints.claim(amount, wallet0.address, sampleUserId, sampleSignedAt, signature, {
           value: (fee + nftConfig.tokenFee) * amount
         });
         expect(await nftMultipleMints["balanceOf(address)"](wallet0.address)).to.eq(3);
@@ -232,7 +263,9 @@ describe("ConfigurableGuildRewardNFT", () => {
       it("should emit Locked event when minting soulbound tokens", async () => {
         const tokenId = await nft.totalSupply();
         await expect(
-          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, { value: fee + nftConfig.tokenFee })
+          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
+            value: fee + nftConfig.tokenFee
+          })
         )
           .to.emit(nft, "Locked")
           .withArgs(tokenId);
@@ -240,7 +273,7 @@ describe("ConfigurableGuildRewardNFT", () => {
 
       it("should emit Claimed event", async () => {
         await expect(
-          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
             value: fee + nftConfig.tokenFee
           })
         )
@@ -250,7 +283,7 @@ describe("ConfigurableGuildRewardNFT", () => {
 
       it("should transfer ether to both treasuries", async () => {
         await expect(
-          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
             value: fee + nftConfig.tokenFee
           })
         ).to.changeEtherBalances(
@@ -261,14 +294,14 @@ describe("ConfigurableGuildRewardNFT", () => {
 
       it("should revert if an incorrect msg.value is received", async () => {
         await expect(
-          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+          nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
             value: fee * 2n
           })
         )
           .to.be.revertedWithCustomError(nft, "IncorrectFee")
           .withArgs(fee * 2n, fee + nftConfig.tokenFee);
 
-        await expect(nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature))
+        await expect(nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature))
           .to.be.revertedWithCustomError(nft, "IncorrectFee")
           .withArgs(0, fee + nftConfig.tokenFee);
       });
@@ -276,9 +309,30 @@ describe("ConfigurableGuildRewardNFT", () => {
 
     context("#burn", () => {
       beforeEach("claim a token", async () => {
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
           value: fee + nftConfig.tokenFee
         });
+      });
+
+      it("should revert if the signature is expired", async () => {
+        const validity = await nft.SIGNATURE_VALIDITY();
+        const oldTimestamp = Math.floor(Date.now() / 1000) - Number(validity) - 10;
+        await expect(
+          nft.burn(
+            [0],
+            sampleUserId,
+            oldTimestamp,
+            await createSignature(
+              signer,
+              sampleAmount,
+              wallet0.address,
+              sampleUserId,
+              oldTimestamp,
+              chainId,
+              await nft.getAddress()
+            )
+          )
+        ).to.be.revertedWithCustomError(nft, "ExpiredSignature");
       });
 
       it("should revert if a token is attempted to be burned by anyone but it's owner", async () => {
@@ -286,31 +340,41 @@ describe("ConfigurableGuildRewardNFT", () => {
           (nft.connect(randomWallet) as Contract).burn(
             [0],
             sampleUserId,
-            createSignature(signer, 1, randomWallet.address, sampleUserId, chainId, await nft.getAddress())
+            sampleSignedAt,
+            createSignature(
+              signer,
+              1,
+              randomWallet.address,
+              sampleUserId,
+              sampleSignedAt,
+              chainId,
+              await nft.getAddress()
+            )
           )
         ).to.be.revertedWithCustomError(nft, "IncorrectSender");
       });
 
       it("should revert if the signature is incorrect", async () => {
-        await expect(nft.burn([0], sampleUserId, ethers.ZeroHash)).to.be.revertedWithCustomError(
-          nft,
-          "IncorrectSignature"
-        );
-
-        await expect(nft.burn([0], sampleUserId, sampleSignature.slice(0, -2))).to.be.revertedWithCustomError(
+        await expect(nft.burn([0], sampleUserId, sampleSignedAt, ethers.ZeroHash)).to.be.revertedWithCustomError(
           nft,
           "IncorrectSignature"
         );
 
         await expect(
+          nft.burn([0], sampleUserId, sampleSignedAt, sampleSignature.slice(0, -2))
+        ).to.be.revertedWithCustomError(nft, "IncorrectSignature");
+
+        await expect(
           nft.burn(
             [0],
             sampleUserId,
+            sampleSignedAt,
             await createSignature(
               signer,
               sampleAmount,
               randomWallet.address,
               sampleUserId,
+              sampleSignedAt,
               chainId,
               await nft.getAddress()
             )
@@ -320,21 +384,21 @@ describe("ConfigurableGuildRewardNFT", () => {
 
       it("should decrement the address' claimed tokens", async () => {
         const userBalance0 = await nft["balanceOf(address)"](wallet0.address);
-        await nft.burn([0], sampleUserId, sampleSignature);
+        await nft.burn([0], sampleUserId, sampleSignedAt, sampleSignature);
         const userBalance1 = await nft["balanceOf(address)"](wallet0.address);
         expect(userBalance1).to.eq(userBalance0 - 1n);
       });
 
       it("should decrement the userId's claimed tokens", async () => {
         const userBalance0 = await nft["balanceOf(uint256)"](sampleUserId);
-        await nft.burn([0], sampleUserId, sampleSignature);
+        await nft.burn([0], sampleUserId, sampleSignedAt, sampleSignature);
         const userBalance1 = await nft["balanceOf(uint256)"](sampleUserId);
         expect(userBalance1).to.eq(userBalance0 - 1n);
       });
 
       it("should decrement the total supply", async () => {
         const totalSupply0 = await nft.totalSupply();
-        await nft.burn([0], sampleUserId, sampleSignature);
+        await nft.burn([0], sampleUserId, sampleSignedAt, sampleSignature);
         const totalSupply1 = await nft.totalSupply();
         expect(totalSupply1).to.eq(totalSupply0 - 1n);
       });
@@ -344,7 +408,7 @@ describe("ConfigurableGuildRewardNFT", () => {
         const tokenOfOwnerByIndex = await nft.tokenOfOwnerByIndex(wallet0.address, 0);
         expect(tokenOfOwnerByIndex).to.eq(tokenId);
 
-        await nft.burn([tokenId], sampleUserId, sampleSignature);
+        await nft.burn([tokenId], sampleUserId, sampleSignedAt, sampleSignature);
 
         await expect(nft.tokenOfOwnerByIndex(wallet0.address, 0)).to.be.revertedWith(
           "ERC721Enumerable: owner index out of bounds"
@@ -357,13 +421,14 @@ describe("ConfigurableGuildRewardNFT", () => {
           2n,
           wallet0.address,
           sampleUserId,
+          sampleSignedAt,
           chainId,
           await nftMultipleMints.getAddress()
         );
 
         await factory.setNFTImplementation(ContractType.CONFIGURABLE_NFT, nftMultipleMints);
 
-        await nftMultipleMints.claim(2n, wallet0.address, sampleUserId, signature, {
+        await nftMultipleMints.claim(2n, wallet0.address, sampleUserId, sampleSignedAt, signature, {
           value: (fee + nftConfig.tokenFee) * 2n
         });
 
@@ -373,7 +438,7 @@ describe("ConfigurableGuildRewardNFT", () => {
         expect(tokenOfOwnerByIndex0).to.eq(tokenIds[0]);
         expect(tokenOfOwnerByIndex1).to.eq(tokenIds[1]);
 
-        await nftMultipleMints.burn(tokenIds, sampleUserId, signature);
+        await nftMultipleMints.burn(tokenIds, sampleUserId, sampleSignedAt, signature);
 
         await expect(nftMultipleMints.tokenOfOwnerByIndex(wallet0.address, 0)).to.be.revertedWith(
           "ERC721Enumerable: owner index out of bounds"
@@ -392,7 +457,16 @@ describe("ConfigurableGuildRewardNFT", () => {
           sampleAmount,
           wallet0.address,
           sampleUserId,
-          await createSignature(signer, sampleAmount, wallet0.address, sampleUserId, chainId, await nft.getAddress()),
+          sampleSignedAt,
+          await createSignature(
+            signer,
+            sampleAmount,
+            wallet0.address,
+            sampleUserId,
+            sampleSignedAt,
+            chainId,
+            await nft.getAddress()
+          ),
           {
             value: fee + nftConfig.tokenFee
           }
@@ -450,6 +524,7 @@ describe("ConfigurableGuildRewardNFT", () => {
         sampleAmount,
         wallet0.address,
         sampleUserId,
+        sampleSignedAt,
         chainId,
         await nft.getAddress()
       );
@@ -461,7 +536,7 @@ describe("ConfigurableGuildRewardNFT", () => {
       });
 
       it("should return the correct tokenURI", async () => {
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, signature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, signature, {
           value: fee + nftConfig.tokenFee
         });
 
@@ -473,7 +548,7 @@ describe("ConfigurableGuildRewardNFT", () => {
 
     context("#updateTokenURI", () => {
       beforeEach("claim a token", async () => {
-        await nft.claim(sampleAmount, wallet0.address, sampleUserId, signature, {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, signature, {
           value: fee + nftConfig.tokenFee
         });
       });

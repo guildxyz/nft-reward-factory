@@ -22,6 +22,8 @@ contract ConfigurableGuildRewardNFT is
     using ECDSA for bytes32;
     using LibTransfer for address payable;
 
+    uint256 public constant SIGNATURE_VALIDITY = 1 hours;
+
     address public factoryProxy;
     uint256 public mintableAmountPerUser;
 
@@ -45,11 +47,19 @@ contract ConfigurableGuildRewardNFT is
         _transferOwnership(nftConfig.tokenOwner);
     }
 
-    function claim(uint256 amount, address receiver, uint256 userId, bytes calldata signature) external payable {
+    function claim(
+        uint256 amount,
+        address receiver,
+        uint256 userId,
+        uint256 signedAt,
+        bytes calldata signature
+    ) external payable {
+        if (signedAt < block.timestamp - SIGNATURE_VALIDITY) revert ExpiredSignature();
+
         uint256 mintableAmount = mintableAmountPerUser;
         if (amount > mintableAmount - balanceOf(receiver) || amount > mintableAmount - claimedTokens[userId])
             revert AlreadyClaimed();
-        if (!isValidSignature(amount, receiver, userId, signature)) revert IncorrectSignature();
+        if (!isValidSignature(amount, signedAt, receiver, userId, signature)) revert IncorrectSignature();
 
         (uint256 guildFee, address payable guildTreasury) = ITreasuryManager(factoryProxy).getFeeData();
 
@@ -80,9 +90,11 @@ contract ConfigurableGuildRewardNFT is
         } else revert IncorrectFee(msg.value, guildAmount + ownerAmount);
     }
 
-    function burn(uint256[] calldata tokenIds, uint256 userId, bytes calldata signature) external {
+    function burn(uint256[] calldata tokenIds, uint256 userId, uint256 signedAt, bytes calldata signature) external {
+        if (signedAt < block.timestamp - SIGNATURE_VALIDITY) revert ExpiredSignature();
+
         uint256 amount = tokenIds.length;
-        if (!isValidSignature(amount, msg.sender, userId, signature)) revert IncorrectSignature();
+        if (!isValidSignature(amount, signedAt, msg.sender, userId, signature)) revert IncorrectSignature();
 
         for (uint256 i; i < amount; ) {
             uint256 tokenId = tokenIds[i];
@@ -126,12 +138,13 @@ contract ConfigurableGuildRewardNFT is
     /// @notice Checks the validity of the signature for the given params.
     function isValidSignature(
         uint256 amount,
+        uint256 signedAt,
         address receiver,
         uint256 userId,
         bytes calldata signature
     ) internal view returns (bool) {
         if (signature.length != 65) revert IncorrectSignature();
-        bytes32 message = keccak256(abi.encode(amount, receiver, userId, block.chainid, address(this)))
+        bytes32 message = keccak256(abi.encode(amount, signedAt, receiver, userId, block.chainid, address(this)))
             .toEthSignedMessageHash();
         return message.recover(signature) == IGuildRewardNFTFactory(factoryProxy).validSigner();
     }

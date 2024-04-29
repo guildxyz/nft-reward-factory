@@ -4,6 +4,19 @@ An NFT distributed as a reward for Guild.xyz users.
 
 ## Variables
 
+### SIGNATURE_VALIDITY
+
+```solidity
+uint256 SIGNATURE_VALIDITY
+```
+
+The time interval while a signature is valid.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
 ### factoryProxy
 
 ```solidity
@@ -79,6 +92,7 @@ function claim(
     uint256 amount,
     address receiver,
     uint256 userId,
+    uint256 signedAt,
     bytes signature
 ) external
 ```
@@ -92,7 +106,8 @@ Claims tokens to the given address.
 | `amount` | uint256 | The amount of tokens to mint. Should be less or equal to mintableAmountPerUser. |
 | `receiver` | address | The address that receives the token. |
 | `userId` | uint256 | The id of the user on Guild. |
-| `signature` | bytes | The following signed by validSigner: amount, receiver, userId, chainId, the contract's address. |
+| `signedAt` | uint256 | The timestamp marking the time when the data were signed. |
+| `signature` | bytes | The following signed by validSigner: amount, signedAt, receiver, userId, chainId, the contract's address. |
 
 ### burn
 
@@ -100,6 +115,7 @@ Claims tokens to the given address.
 function burn(
     uint256[] tokenIds,
     uint256 userId,
+    uint256 signedAt,
     bytes signature
 ) external
 ```
@@ -112,7 +128,8 @@ Burns tokens from the sender.
 | :--- | :--- | :---------- |
 | `tokenIds` | uint256[] | The tokenIds to burn. All of them should belong to userId. |
 | `userId` | uint256 | The id of the user on Guild. |
-| `signature` | bytes | The following signed by validSigner: amount, receiver, userId, chainId, the contract's address. |
+| `signedAt` | uint256 | The timestamp marking the time when the data were signed. |
+| `signature` | bytes | The following signed by validSigner: amount, signedAt, receiver, userId, chainId, the contract's address. |
 
 ### setLocked
 
@@ -212,6 +229,7 @@ See {IERC721Metadata-tokenURI}.
 ```solidity
 function isValidSignature(
     uint256 amount,
+    uint256 signedAt,
     address receiver,
     uint256 userId,
     bytes signature
@@ -225,6 +243,7 @@ Checks the validity of the signature for the given params.
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `amount` | uint256 |  |
+| `signedAt` | uint256 |  |
 | `receiver` | address |  |
 | `userId` | uint256 |  |
 | `signature` | bytes |  |

@@ -34,6 +34,19 @@ Doesn't matter if they are claimed in the same transaction or separately.
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `mintableAmountPerUser` | uint256 | The amount of tokens. |
+### SIGNATURE_VALIDITY
+
+```solidity
+function SIGNATURE_VALIDITY() external returns (uint256 validity)
+```
+
+The time interval while a signature is valid.
+
+#### Return Values
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `validity` | uint256 | The time interval in seconds. |
 ### balanceOf
 
 ```solidity
@@ -84,6 +97,7 @@ function claim(
     uint256 amount,
     address receiver,
     uint256 userId,
+    uint256 signedAt,
     bytes signature
 ) external
 ```
@@ -97,7 +111,8 @@ Claims tokens to the given address.
 | `amount` | uint256 | The amount of tokens to mint. Should be less or equal to mintableAmountPerUser. |
 | `receiver` | address | The address that receives the token. |
 | `userId` | uint256 | The id of the user on Guild. |
-| `signature` | bytes | The following signed by validSigner: amount, receiver, userId, chainId, the contract's address. |
+| `signedAt` | uint256 | The timestamp marking the time when the data were signed. |
+| `signature` | bytes | The following signed by validSigner: amount, signedAt, receiver, userId, chainId, the contract's address. |
 
 ### burn
 
@@ -105,6 +120,7 @@ Claims tokens to the given address.
 function burn(
     uint256[] tokenIds,
     uint256 userId,
+    uint256 signedAt,
     bytes signature
 ) external
 ```
@@ -117,7 +133,8 @@ Burns tokens from the sender.
 | :--- | :--- | :---------- |
 | `tokenIds` | uint256[] | The tokenIds to burn. All of them should belong to userId. |
 | `userId` | uint256 | The id of the user on Guild. |
-| `signature` | bytes | The following signed by validSigner: amount, receiver, userId, chainId, the contract's address. |
+| `signedAt` | uint256 | The timestamp marking the time when the data were signed. |
+| `signature` | bytes | The following signed by validSigner: amount, signedAt, receiver, userId, chainId, the contract's address. |
 
 ### setLocked
 
@@ -226,6 +243,14 @@ error AlreadyClaimed()
 ```
 
 Error thrown when the token is already claimed.
+
+### ExpiredSignature
+
+```solidity
+error ExpiredSignature()
+```
+
+Error thrown when the signature is already expired.
 
 ### IncorrectFee
 
