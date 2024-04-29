@@ -35,6 +35,9 @@ interface IConfigurableGuildRewardNFT {
         address factoryProxyAddress
     ) external;
 
+    // Disable solhint for the next functions because this seems to be the only way the docgen plugin works correctly.
+    // solhint-disable max-line-length
+
     /// @notice Claims tokens to the given address.
     /// @param amount The amount of tokens to mint. Should be less or equal to mintableAmountPerUser.
     /// @param receiver The address that receives the token.
@@ -55,6 +58,8 @@ interface IConfigurableGuildRewardNFT {
     /// @param signedAt The timestamp marking the time when the data were signed.
     /// @param signature The following signed by validSigner: amount, signedAt, receiver, userId, chainId, the contract's address.
     function burn(uint256[] calldata tokenIds, uint256 userId, uint256 signedAt, bytes calldata signature) external;
+
+    // solhint-enable max-line-length
 
     /// @notice Sets the locked (i.e. soulboundness) status of all of the tokens in this NFT.
     /// @dev Only callable by the owner.
