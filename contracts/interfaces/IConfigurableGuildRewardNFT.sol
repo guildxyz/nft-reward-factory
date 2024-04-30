@@ -2,9 +2,10 @@
 pragma solidity ^0.8.0;
 
 import { IGuildRewardNFTFactory } from "./IGuildRewardNFTFactory.sol";
+import { IMaxSupply } from "./IMaxSupply.sol";
 
 /// @title An NFT distributed as a reward for Guild.xyz users.
-interface IConfigurableGuildRewardNFT {
+interface IConfigurableGuildRewardNFT is IMaxSupply {
     /// @notice The address of the proxy to be used when interacting with the factory.
     /// @dev Used to access the factory's address when interacting through minimal proxies.
     /// @return factoryAddress The address of the factory.

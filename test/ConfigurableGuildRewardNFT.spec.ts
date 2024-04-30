@@ -11,6 +11,7 @@ const baseNFTConfig = {
   cid: sampleCids[0],
   tokenFee: ethers.parseEther("0.1"),
   soulbound: true,
+  maxSupply: 10n,
   mintableAmountPerUser: 1n
 };
 let nftConfig: typeof baseNFTConfig & { tokenOwner: string; treasury: string };
@@ -94,6 +95,7 @@ describe("ConfigurableGuildRewardNFT", () => {
     expect(await nft.name()).to.eq(nftConfig.name);
     expect(await nft.symbol()).to.eq(nftConfig.symbol);
     expect(await nft.owner()).to.eq(wallet0.address);
+    expect(await nft.maxSupply()).to.eq(nftConfig.maxSupply);
     expect(await nft.mintableAmountPerUser()).to.eq(nftConfig.mintableAmountPerUser);
     expect(await nft.factoryProxy()).to.eq(await factory.getAddress());
   });
@@ -221,6 +223,31 @@ describe("ConfigurableGuildRewardNFT", () => {
         });
         const userBalance1 = await nft["balanceOf(uint256)"](sampleUserId);
         expect(userBalance1).to.eq(userBalance0 + sampleAmount);
+      });
+
+      it("should revert if the max supply is reached", async () => {
+        const newMaxSupply = sampleAmount;
+        await nft.setMaxSupply(newMaxSupply);
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
+          value: fee + nftConfig.tokenFee
+        });
+
+        const signature = await createSignature(
+          signer,
+          sampleAmount,
+          randomWallet.address,
+          sampleUserId + 1,
+          sampleSignedAt,
+          chainId,
+          await nft.getAddress()
+        );
+        await expect(
+          nft.claim(sampleAmount, randomWallet.address, sampleUserId + 1, sampleSignedAt, signature, {
+            value: fee + nftConfig.tokenFee
+          })
+        )
+          .to.be.revertedWithCustomError(nft, "MaxSupplyReached")
+          .withArgs(newMaxSupply);
       });
 
       it("should mint the token", async () => {
@@ -489,6 +516,30 @@ describe("ConfigurableGuildRewardNFT", () => {
       it("should emit Locked/Unlocked event", async () => {
         await expect(nft.setLocked(false)).to.emit(nft, "Unlocked").withArgs(0);
         await expect(nft.setLocked(true)).to.emit(nft, "Locked").withArgs(0);
+      });
+    });
+
+    context("#setMaxSupply", () => {
+      it("should revert if maxSupply is attempted to be changed by anyone but the owner", async () => {
+        await expect((nft.connect(randomWallet) as Contract).setMaxSupply(5)).to.be.revertedWith(
+          "Ownable: caller is not the owner"
+        );
+      });
+
+      it("should revert if maxSupply is attempted to be set to 0", async () => {
+        await expect(nft.setMaxSupply(0)).to.be.revertedWithCustomError(nft, "MaxSupplyZero");
+      });
+
+      it("should update maxSupply", async () => {
+        const maxSupply = 5;
+        await nft.setMaxSupply(maxSupply);
+        const newMaxSupply = await nft.maxSupply();
+        expect(newMaxSupply).to.eq(maxSupply);
+      });
+
+      it("should emit MaxSupplyChanged event", async () => {
+        const maxSupply = 5;
+        await expect(nft.setMaxSupply(maxSupply)).to.emit(nft, "MaxSupplyChanged").withArgs(maxSupply);
       });
     });
 

@@ -32,6 +32,19 @@ _Used to access the factory's address when interacting through minimal proxies._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 
+### maxSupply
+
+```solidity
+uint256 maxSupply
+```
+
+The maximum number of tokens that can ever be minted.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
 ### mintableAmountPerUser
 
 ```solidity
@@ -148,6 +161,24 @@ Only callable by the owner.
 | Name | Type | Description |
 | :--- | :--- | :---------- |
 | `newLocked` | bool | Whether the token should be soulbound or not. |
+
+### setMaxSupply
+
+```solidity
+function setMaxSupply(
+    uint256 newMaxSupply
+) external
+```
+
+Sets the maximum number of tokens that can ever be minted.
+
+Only callable by the owner.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `newMaxSupply` | uint256 | The number of tokens. |
 
 ### setMintableAmountPerUser
 

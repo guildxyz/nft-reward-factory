@@ -19,6 +19,7 @@ interface IGuildRewardNFTFactory {
     /// @param tokenTreasury The address that will collect the prices of the minted tokens.
     /// @param tokenFee The price of every mint in wei.
     /// @param soulbound Whether the token should be soulbound.
+    /// @param maxSupply The maximum number of tokens that users will ever be able to mint.
     /// @param mintableAmountPerUser The maximum amount a user will be able to mint from the deployed token.
     struct ConfigurableNFTConfig {
         string name;
@@ -28,6 +29,7 @@ interface IGuildRewardNFTFactory {
         address payable treasury;
         uint256 tokenFee;
         bool soulbound;
+        uint256 maxSupply;
         uint256 mintableAmountPerUser;
     }
 

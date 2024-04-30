@@ -11,6 +11,7 @@ const nftConfig = {
   treasury: "0x...", // The address that will receive the price paid for mints.
   tokenFee: 0, // The price of every mint in wei.
   soulbound: true, // Whether the token should be soulbound or not.
+  maxSupply: 10, // The maximum number of tokens that users will ever be able to mint.
   mintableAmountPerUser: 1 // The maximum amount a user will be able to mint from the token.
 };
 

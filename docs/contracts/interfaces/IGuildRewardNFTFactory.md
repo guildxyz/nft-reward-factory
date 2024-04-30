@@ -234,6 +234,7 @@ struct ConfigurableNFTConfig {
   address payable treasury;
   uint256 tokenFee;
   bool soulbound;
+  uint256 maxSupply;
   uint256 mintableAmountPerUser;
 }
 ```

@@ -10,6 +10,7 @@ const sampleSymbol = "TGP";
 const cids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQGuExUjtyTRvZ2FF525Ww6PBNWWgkkLj"];
 const sampleFee = 69;
 const sampleSoulbound = true;
+const sampleMaxSupply = 10n;
 const sampleMintableAmountPerUser = 1;
 
 // CONTRACTS
@@ -80,6 +81,7 @@ describe("GuildRewardNFTFactory", () => {
       treasury: treasury.address,
       tokenFee: sampleFee,
       soulbound: sampleSoulbound,
+      maxSupply: sampleMaxSupply,
       mintableAmountPerUser: sampleMintableAmountPerUser
     });
     const nftAddresses = await factory.getDeployedTokenContracts(wallet0.address);
@@ -88,6 +90,7 @@ describe("GuildRewardNFTFactory", () => {
     expect(await nft.symbol()).to.eq(sampleSymbol);
     expect(await nft.owner()).to.eq(randomWallet.address);
     expect(await nft.fee()).to.eq(sampleFee);
+    expect(await nft.maxSupply()).to.eq(sampleMaxSupply);
     expect(await nft.mintableAmountPerUser()).to.eq(sampleMintableAmountPerUser);
   });
 
