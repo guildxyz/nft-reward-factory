@@ -178,7 +178,7 @@ Only callable by the owner.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `newMaxSupply` | uint256 | The number of tokens. |
+| `newMaxSupply` | uint256 | The number of tokens. Unlimited if zero. |
 
 ### setMintableAmountPerUser
 

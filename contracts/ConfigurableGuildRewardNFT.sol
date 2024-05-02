@@ -38,8 +38,6 @@ contract ConfigurableGuildRewardNFT is
         IGuildRewardNFTFactory.ConfigurableNFTConfig memory nftConfig,
         address factoryProxyAddress
     ) public initializer {
-        if (nftConfig.maxSupply <= 0) revert MaxSupplyZero();
-
         cid = nftConfig.cid;
         maxSupply = nftConfig.maxSupply;
         mintableAmountPerUser = nftConfig.mintableAmountPerUser;
@@ -72,7 +70,8 @@ contract ConfigurableGuildRewardNFT is
         uint256 firstTokenId = totalSupply();
         uint256 lastTokenId = firstTokenId + amount - 1;
 
-        if (lastTokenId >= maxSupply) revert MaxSupplyReached(maxSupply);
+        uint256 tokenIdCap = maxSupply;
+        if (tokenIdCap > 0 && lastTokenId >= tokenIdCap) revert MaxSupplyReached(tokenIdCap);
 
         for (uint256 tokenId = firstTokenId; tokenId <= lastTokenId; ) {
             _safeMint(receiver, tokenId);
@@ -122,7 +121,6 @@ contract ConfigurableGuildRewardNFT is
     }
 
     function setMaxSupply(uint256 newMaxSupply) external onlyOwner {
-        if (newMaxSupply <= 0) revert MaxSupplyZero();
         maxSupply = newMaxSupply;
         emit MaxSupplyChanged(newMaxSupply);
     }

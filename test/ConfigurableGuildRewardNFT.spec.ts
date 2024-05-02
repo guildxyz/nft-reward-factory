@@ -526,10 +526,6 @@ describe("ConfigurableGuildRewardNFT", () => {
         );
       });
 
-      it("should revert if maxSupply is attempted to be set to 0", async () => {
-        await expect(nft.setMaxSupply(0)).to.be.revertedWithCustomError(nft, "MaxSupplyZero");
-      });
-
       it("should update maxSupply", async () => {
         const maxSupply = 5;
         await nft.setMaxSupply(maxSupply);

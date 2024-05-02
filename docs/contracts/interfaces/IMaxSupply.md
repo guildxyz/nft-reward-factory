@@ -14,7 +14,7 @@ The maximum number of tokens that can ever be minted.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `count` | uint256 | The number of tokens. |
+| `count` | uint256 | The number of tokens. Unlimited if zero. |
 ### setMaxSupply
 
 ```solidity
@@ -31,7 +31,7 @@ Only callable by the owner.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `newMaxSupply` | uint256 | The number of tokens. |
+| `newMaxSupply` | uint256 | The number of tokens. Unlimited if zero. |
 
 ## Events
 
@@ -52,14 +52,6 @@ Event emitted when the maxSupply is changed.
 | `newMaxSupply` | uint256 | The number of tokens. |
 
 ## Custom errors
-
-### MaxSupplyZero
-
-```solidity
-error MaxSupplyZero()
-```
-
-Error thrown when the maximum supply attempted to be set is zero.
 
 ### MaxSupplyReached
 
