@@ -9,7 +9,8 @@ import { OptionallySoulboundERC721 } from "./token/OptionallySoulboundERC721.sol
 import { TreasuryManager } from "./utils/TreasuryManager.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { ECDSAUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import { MulticallUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/MulticallUpgradeable.sol";
 
 /// @title An NFT distributed as a reward for Guild.xyz users.
 contract ConfigurableGuildRewardNFT is
@@ -17,9 +18,10 @@ contract ConfigurableGuildRewardNFT is
     Initializable,
     OwnableUpgradeable,
     OptionallySoulboundERC721,
-    TreasuryManager
+    TreasuryManager,
+    MulticallUpgradeable
 {
-    using ECDSA for bytes32;
+    using ECDSAUpgradeable for bytes32;
     using LibTransfer for address payable;
 
     uint256 public constant SIGNATURE_VALIDITY = 1 hours;

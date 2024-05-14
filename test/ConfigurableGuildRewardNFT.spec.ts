@@ -562,6 +562,24 @@ describe("ConfigurableGuildRewardNFT", () => {
           .withArgs(mintableAmountPerUser);
       });
     });
+
+    context("multicall", () => {
+      it("can set multiple settings at once using multicall", async () => {
+        const locked = false;
+        const maxSupply = 420n;
+        const mintableAmountPerUser = 69n;
+
+        await nft.multicall([
+          nft.interface.encodeFunctionData("setLocked", [locked]),
+          nft.interface.encodeFunctionData("setMaxSupply", [maxSupply]),
+          nft.interface.encodeFunctionData("setMintableAmountPerUser", [mintableAmountPerUser])
+        ]);
+
+        expect(await nft.locked()).to.eq(locked);
+        expect(await nft.maxSupply()).to.eq(maxSupply);
+        expect(await nft.mintableAmountPerUser()).to.eq(mintableAmountPerUser);
+      });
+    });
   });
 
   context("TokenURI", () => {
