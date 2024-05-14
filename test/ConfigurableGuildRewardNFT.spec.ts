@@ -509,8 +509,10 @@ describe("ConfigurableGuildRewardNFT", () => {
       it("should update locked status", async () => {
         const locked = false;
         await nft.setLocked(locked);
-        const newLocked = await nft.locked(0);
+        const newLocked = await nft["locked(uint256)"](0);
+        const anotherNewLocked = await nft.locked();
         expect(newLocked).to.eq(locked);
+        expect(anotherNewLocked).to.eq(locked);
       });
 
       it("should emit Locked/Unlocked event", async () => {

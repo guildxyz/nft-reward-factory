@@ -72,6 +72,16 @@ about them do throw.
 | :--- | :--- | :---------- |
 | `tokenId` | uint256 | The identifier for an SBT. |
 
+### locked
+
+```solidity
+function locked() external returns (bool)
+```
+
+Whether all the tokens in the NFT are soulbound.
+
+Added as a convenient alternative to locked(tokenId) that does not require a minted token.
+
 ### approve
 
 ```solidity

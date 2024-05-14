@@ -58,6 +58,12 @@ contract OptionallySoulboundERC721 is ERC721Upgradeable, ERC721EnumerableUpgrade
         return soulbound;
     }
 
+    /// @notice Whether all the tokens in the NFT are soulbound.
+    /// @dev Added as a convenient alternative to locked(tokenId) that does not require a minted token.
+    function locked() external view returns (bool) {
+        return soulbound;
+    }
+
     function approve(
         address to,
         uint256 tokenId
