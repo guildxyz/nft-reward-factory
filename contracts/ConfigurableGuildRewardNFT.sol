@@ -61,8 +61,10 @@ contract ConfigurableGuildRewardNFT is
         if (signedAt < block.timestamp - SIGNATURE_VALIDITY) revert ExpiredSignature();
 
         uint256 mintableAmount = mintableAmountPerUser;
-        if (amount > mintableAmount - balanceOf(receiver) || amount > mintableAmount - claimedTokens[userId])
-            revert AlreadyClaimed();
+        if (
+            mintableAmount > 0 &&
+            (amount > mintableAmount - balanceOf(receiver) || amount > mintableAmount - claimedTokens[userId])
+        ) revert AlreadyClaimed();
         if (!isValidSignature(amount, signedAt, receiver, userId, signature)) revert IncorrectSignature();
 
         (uint256 guildFee, address payable guildTreasury) = ITreasuryManager(factoryProxy).getFeeData();

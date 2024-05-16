@@ -33,7 +33,7 @@ Doesn't matter if they are claimed in the same transaction or separately.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `mintableAmountPerUser` | uint256 | The amount of tokens. |
+| `mintableAmountPerUser` | uint256 | The amount of tokens. Unlimited if zero. |
 ### SIGNATURE_VALIDITY
 
 ```solidity
@@ -170,7 +170,7 @@ Only callable by the owner.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `newAmount` | uint256 | The new amount a user can mint from the token. |
+| `newAmount` | uint256 | The new amount a user can mint from the token. Unlimited if zero. |
 
 ### updateTokenURI
 

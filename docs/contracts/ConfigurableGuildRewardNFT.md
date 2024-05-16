@@ -196,7 +196,7 @@ Only callable by the owner.
 
 | Name | Type | Description |
 | :--- | :--- | :---------- |
-| `newAmount` | uint256 | The new amount a user can mint from the token. |
+| `newAmount` | uint256 | The new amount a user can mint from the token. Unlimited if zero. |
 
 ### updateTokenURI
 

@@ -13,7 +13,7 @@ interface IConfigurableGuildRewardNFT is IMaxSupply {
 
     /// @notice The maximum amount of tokens a Guild user can claim from the token.
     /// @dev Doesn't matter if they are claimed in the same transaction or separately.
-    /// @return mintableAmountPerUser The amount of tokens.
+    /// @return mintableAmountPerUser The amount of tokens. Unlimited if zero.
     function mintableAmountPerUser() external view returns (uint256 mintableAmountPerUser);
 
     /// @notice The time interval while a signature is valid.
@@ -69,7 +69,7 @@ interface IConfigurableGuildRewardNFT is IMaxSupply {
 
     /// @notice Sets the amount of tokens a user can mint from the token.
     /// @dev Only callable by the owner.
-    /// @param newAmount The new amount a user can mint from the token.
+    /// @param newAmount The new amount a user can mint from the token. Unlimited if zero.
     function setMintableAmountPerUser(uint256 newAmount) external;
 
     /// @notice Updates the cid for tokenURI.
