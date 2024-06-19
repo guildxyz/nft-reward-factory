@@ -194,7 +194,7 @@ const config: HardhatUserConfig = {
       {
         network: "mantle",
         chainId: 5000,
-        urls: { apiURL: "https://api.cronoscan.com/api", browserURL: "https://cronoscan.com" }
+        urls: { apiURL: "https://api.mantlescan.xyz/api", browserURL: "https://mantlescan.xyz" }
       },
       {
         network: "linea",
