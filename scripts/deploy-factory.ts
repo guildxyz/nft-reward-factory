@@ -4,7 +4,6 @@ import { ethers, upgrades } from "hardhat";
 const treasury = "0x..."; // The address where the collected fees will go.
 const fee = 0; // The Guild base fee for every deployment.
 const validSigner = "0x..."; // The address that signs the parameters for claiming tokens.
-// Note: set NFT implementation after deploying the NFTs.
 
 async function main() {
   const contractName = "GuildRewardNFTFactory";

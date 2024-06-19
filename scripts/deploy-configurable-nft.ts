@@ -15,6 +15,11 @@ const nftConfig = {
   mintableAmountPerUser: 1 // The maximum amount a user will be able to mint from the token.
 };
 
+enum ContractType {
+  BASIC_NFT,
+  CONFIGURABLE_NFT
+}
+
 async function main() {
   const contractName = "ConfigurableGuildRewardNFT";
 
@@ -29,7 +34,13 @@ async function main() {
 
   await configurableGuildRewardNFT.initialize(nftConfig, factoryAddress);
 
-  console.log(`${contractName} deployed to:`, await configurableGuildRewardNFT.getAddress());
+  const nftAddress = await configurableGuildRewardNFT.getAddress();
+  console.log(`${contractName} deployed to:`, nftAddress);
+
+  const GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
+  const guildRewardNFTFactory = GuildRewardNFTFactory.attach(factoryAddress);
+  await guildRewardNFTFactory.setNFTImplementation(ContractType.CONFIGURABLE_NFT, nftAddress);
+  console.log(`${contractName} implementation linked to the factory`);
 }
 
 main().catch((error) => {

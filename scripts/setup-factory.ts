@@ -10,10 +10,10 @@ const nftType = ContractType.CONFIGURABLE_NFT; // The type of the contract.
 const nftAddress = "0x..."; // The address where the above type of nft was deployed.
 
 async function main() {
-  const GuildPin = await ethers.getContractFactory("GuildRewardNFTFactory");
-  const pin = GuildPin.attach(factoryAddress);
-
-  await pin.setNFTImplementation(nftType, nftAddress);
+  const GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
+  const factory = GuildRewardNFTFactory.attach(factoryAddress);
+  await factory.setNFTImplementation(nftType, nftAddress);
+  console.log(`NFT implementation linked to the factory`);
 }
 
 main().catch((error) => {
