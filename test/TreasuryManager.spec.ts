@@ -62,6 +62,29 @@ describe("TreasuryManager", () => {
     });
   });
 
+  context("#setFeeOverride", () => {
+    it("should revert if the fee override is attempted to be changed by anyone but the owner", async () => {
+      await expect(
+        (factory.connect(randomWallet) as Contract).setFeeOverride(randomWallet.address, 12)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("should change the fee override", async () => {
+      const mockFee0 = await factory.getFeeWithOverrides(randomWallet.address);
+      await factory.setFeeOverride(randomWallet.address, 420);
+      const mockFee1 = await factory.getFeeWithOverrides(randomWallet.address);
+      expect(mockFee0).to.not.eq(mockFee1);
+      expect(mockFee1).to.eq(420);
+    });
+
+    it("should emit FeeChanged event", async () => {
+      const newFee = 42;
+      await expect(factory.setFeeOverride(randomWallet.address, newFee))
+        .to.emit(factory, "FeeOverrideChanged")
+        .withArgs(randomWallet.address, newFee);
+    });
+  });
+
   context("#setTreasury", () => {
     it("should revert if the treasury is attempted to be changed by anyone but the owner", async () => {
       await expect((factory.connect(randomWallet) as Contract).setTreasury(randomWallet.address)).to.be.revertedWith(

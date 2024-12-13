@@ -18,12 +18,20 @@ Returns the address that receives the fees.
 uint256 fee
 ```
 
-The minting fee of a token.
+The base minting fee of a token.
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+
+### _feeOverrides
+
+```solidity
+mapping(address => uint256) _feeOverrides
+```
+
+Fee overrides to be able to discount fees for specific guilds.
 
 ## Functions
 
@@ -61,6 +69,26 @@ Callable only by the owner.
 | :--- | :--- | :---------- |
 | `newFee` | uint256 | The new fee in base units. |
 
+### setFeeOverride
+
+```solidity
+function setFeeOverride(
+    address tokenAddress,
+    uint256 newFee
+) external
+```
+
+Sets the fee override for a specific token.
+
+Callable only by the owner.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `tokenAddress` | address | The address of the token. |
+| `newFee` | uint256 | The new fee amount in base units. |
+
 ### setTreasury
 
 ```solidity
@@ -79,6 +107,27 @@ Callable only by the owner.
 | :--- | :--- | :---------- |
 | `newTreasury` | address payable | The new address of the treasury. |
 
+### getFeeWithOverrides
+
+```solidity
+function getFeeWithOverrides(
+    address tokenAddress
+) public returns (uint256)
+```
+
+The minting fee of a token for a specific caller.
+
+#### Parameters
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `tokenAddress` | address | The address of the token. |
+
+#### Return Values
+
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| `[0]` | uint256 |  |
 ### getFeeData
 
 ```solidity
@@ -86,6 +135,8 @@ function getFeeData() external returns (uint256 tokenFee, address payable treasu
 ```
 
 Gets both the fee and the treasury address for optimization purposes.
+
+Gets the fee for the caller - might only make sense to call it from a contract.
 
 #### Return Values
 

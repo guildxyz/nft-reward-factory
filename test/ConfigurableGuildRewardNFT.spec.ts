@@ -287,6 +287,15 @@ describe("ConfigurableGuildRewardNFT", () => {
         expect(await nftMultipleMints.ownerOf(tokenId)).to.eq(wallet0.address);
       });
 
+      it("should still mint tokens even if the fee is overridden", async () => {
+        const overriddenGuildFee = ethers.parseEther("0.01");
+        await factory.setFeeOverride(await nft.getAddress(), overriddenGuildFee);
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, sampleSignature, {
+          value: overriddenGuildFee + nftConfig.tokenFee
+        });
+        expect(await nft["balanceOf(address)"](wallet0.address)).to.eq(1);
+      });
+
       it("should emit Locked event when minting soulbound tokens", async () => {
         const tokenId = await nft.totalSupply();
         await expect(

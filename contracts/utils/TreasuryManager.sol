@@ -11,8 +11,11 @@ contract TreasuryManager is ITreasuryManager, Initializable, OwnableUpgradeable 
 
     uint256 public fee;
 
+    /// @notice Fee overrides to be able to discount fees for specific guilds.
+    mapping(address token => uint256 fee) internal _feeOverrides;
+
     /// @notice Empty space reserved for future updates.
-    uint256[48] private __gap;
+    uint256[47] private __gap;
 
     /// @param treasury_ The address that will receive the fees.
     /// @param fee_ The fee amount in wei.
@@ -27,12 +30,23 @@ contract TreasuryManager is ITreasuryManager, Initializable, OwnableUpgradeable 
         emit FeeChanged(newFee);
     }
 
+    function setFeeOverride(address tokenAddress, uint256 newFee) external onlyOwner {
+        _feeOverrides[tokenAddress] = newFee;
+        emit FeeOverrideChanged(tokenAddress, newFee);
+    }
+
     function setTreasury(address payable newTreasury) external onlyOwner {
         treasury = newTreasury;
         emit TreasuryChanged(newTreasury);
     }
 
+    function getFeeWithOverrides(address tokenAddress) public view returns (uint256) {
+        uint256 feeOverride = _feeOverrides[tokenAddress];
+        return feeOverride != 0 ? feeOverride : fee;
+    }
+
     function getFeeData() external view returns (uint256 tokenFee, address payable treasuryAddress) {
-        return (fee, treasury);
+        uint256 correctFee = getFeeWithOverrides(msg.sender);
+        return (correctFee, treasury);
     }
 }
