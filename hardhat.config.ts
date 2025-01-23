@@ -22,6 +22,9 @@ const config: HardhatUserConfig = {
       }
     }
   },
+  zksolc: {
+    version: "1.5.7" // Newer versions fail from https://github.com/matter-labs/zksolc-bin
+  },
   networks: {
     hardhat: {},
     ethereum: {
@@ -195,6 +198,12 @@ const config: HardhatUserConfig = {
       url: "https://rpc.soniclabs.com/",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
+    },
+    zero: {
+      url: "https://rpc.zerion.io/v1/zero",
+      ethNetwork: "mainnet",
+      verifyURL: "https://explorer-api.zero.network/verification/contract_verification",
+      zksync: true
     }
   },
   gasReporter: {
