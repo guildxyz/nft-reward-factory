@@ -204,6 +204,11 @@ const config: HardhatUserConfig = {
       ethNetwork: "mainnet",
       verifyURL: "https://explorer-api.zero.network/verification/contract_verification",
       zksync: true
+    },
+    xdc: {
+      url: "https://erpc.xinfin.network",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
     }
   },
   gasReporter: {
@@ -241,7 +246,8 @@ const config: HardhatUserConfig = {
       form: "form",
       ink: "ink",
       iota: "iota",
-      sonic: process.env.SONICSCAN_API_KEY || ""
+      sonic: process.env.SONICSCAN_API_KEY || "",
+      xdc: process.env.XDCSCAN_API_KEY || ""
     },
     customChains: [
       {
@@ -360,6 +366,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.sonicscan.org/api",
           browserURL: "https://sonicscan.org"
+        }
+      },
+      {
+        network: "xdc",
+        chainId: 50,
+        urls: {
+          apiURL: "https://api.xdcscan.com/api",
+          browserURL: "https://xdcscan.com"
         }
       }
     ]
