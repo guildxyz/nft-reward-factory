@@ -74,7 +74,7 @@ For source code verification on block explorers, you can use the Verify plugin:
 npx hardhat verify [contractAddress] [constructorArguments] --network [networkName]
 ```
 
-For more detailed instructions, check out it's documentation [here](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-verify#usage).
+For more detailed instructions, check out its documentation [here](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-verify#usage).
 
 Some block explorers might not support the verify plugin. In that case, use [hardhat-solidity-json](https://www.npmjs.com/package/@xyrusworx/hardhat-solidity-json) to generate the standard JSON output and verify the contracts manually:
 

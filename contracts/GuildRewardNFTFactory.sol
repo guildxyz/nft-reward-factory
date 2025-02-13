@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
 import { IBasicGuildRewardNFT } from "./interfaces/IBasicGuildRewardNFT.sol";
@@ -20,18 +20,23 @@ contract GuildRewardNFTFactory is
 {
     address public validSigner;
 
-    mapping(ContractType contractType => address contractAddress) public nftImplementations;
-    mapping(address deployer => Deployment[] tokens) internal deployedTokenContracts;
+    // Mapping of contract types to their respective implementations
+    mapping(ContractType => address) public nftImplementations;
+
+    // Mapping of deployers to their deployed token contracts
+    mapping(address => Deployment[]) internal deployedTokenContracts;
 
     /// @notice Empty space reserved for future updates.
     uint256[47] private __gap;
 
+    /// @notice Initializes the contract with the treasury address, fee, and valid signer.
     function initialize(address payable treasuryAddress, uint256 fee, address validSignerAddress) public initializer {
         validSigner = validSignerAddress;
         __Ownable_init();
         __TreasuryManager_init(treasuryAddress, fee);
     }
 
+    /// @notice Deploys a basic NFT contract.
     function deployBasicNFT(
         string calldata name,
         string calldata symbol,
@@ -53,6 +58,7 @@ contract GuildRewardNFTFactory is
         emit RewardNFTDeployed(msg.sender, deployedCloneAddress, contractType);
     }
 
+    /// @notice Deploys a configurable NFT contract.
     function deployConfigurableNFT(ConfigurableNFTConfig memory nftConfig) external {
         ContractType contractType = ContractType.CONFIGURABLE_NFT;
         address deployedCloneAddress = ClonesUpgradeable.clone(nftImplementations[contractType]);
@@ -67,20 +73,23 @@ contract GuildRewardNFTFactory is
         emit RewardNFTDeployed(msg.sender, deployedCloneAddress, contractType);
     }
 
+    /// @notice Sets the implementation address for a specific contract type.
     function setNFTImplementation(ContractType contractType, address newNFT) external onlyOwner {
         nftImplementations[contractType] = newNFT;
         emit ImplementationChanged(contractType, newNFT);
     }
 
+    /// @notice Updates the valid signer address.
     function setValidSigner(address newValidSigner) external onlyOwner {
         validSigner = newValidSigner;
         emit ValidSignerChanged(newValidSigner);
     }
 
+    /// @notice Retrieves all deployed token contracts for a given deployer address.
     function getDeployedTokenContracts(address deployer) external view returns (Deployment[] memory tokens) {
         return deployedTokenContracts[deployer];
     }
 
-    // solhint-disable-next-line no-empty-blocks
+    /// @notice Authorization check for upgrades, only callable by the owner.
     function _authorizeUpgrade(address) internal override onlyOwner {}
 }
