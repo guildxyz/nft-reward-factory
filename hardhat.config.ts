@@ -281,6 +281,8 @@ const config: HardhatUserConfig = {
         network: "taiko",
         chainId: 167000,
         urls: { apiURL: "https://api.taikoscan.io/api", browserURL: "https://taikoscan.io" }
+        // If you want to use the blockscout api, use the following:
+        // urls: { apiURL: "https://blockscoutapi.mainnet.taiko.xyz/api", browserURL: "https://blockscout.mainnet.taiko.xyz" }
       },
       {
         network: "blast",
