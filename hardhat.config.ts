@@ -115,7 +115,7 @@ const config: HardhatUserConfig = {
       zksync: false
     },
     taiko: {
-      url: "https://taiko.blockpi.network/v1/rpc/public",
+      url: "https://taiko-rpc.publicnode.com",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
