@@ -219,6 +219,11 @@ const config: HardhatUserConfig = {
       url: "https://worldchain-mainnet.g.alchemy.com/public",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
+    },
+    astar: {
+      url: "https://evm.astar.network",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
     }
   },
   gasReporter: {
@@ -259,7 +264,8 @@ const config: HardhatUserConfig = {
       sonic: process.env.SONICSCAN_API_KEY || "",
       xdc: process.env.XDCSCAN_API_KEY || "",
       soneium: "soneium",
-      world: process.env.WORLDSCAN_API_KEY || ""
+      world: process.env.WORLDSCAN_API_KEY || "",
+      astar: process.env.ASTAR_API_KEY || ""
     },
     customChains: [
       {
@@ -399,6 +405,14 @@ const config: HardhatUserConfig = {
         network: "world",
         chainId: 480,
         urls: { apiURL: "https://api.worldscan.org/api", browserURL: "https://worldscan.org" }
+      },
+      {
+        network: "astar",
+        chainId: 592,
+        urls: {
+          apiURL: "https://astar.blockscout.com/api",
+          browserURL: "https://soneium.blockscout.com"
+        }
       }
     ]
   },
