@@ -44,9 +44,9 @@ async function main() {
       console.log("Implementation factoryProxy:", implFactoryProxy);
 
       if (implFactoryProxy === ethers.ZeroAddress) {
-        console.log("✓ Implementation is uninitialized (CORRECT for minimal proxy pattern)");
+        console.log("⚠ Implementation is uninitialized");
       } else {
-        console.log("⚠ WARNING: Implementation is initialized (might cause issues with clones)");
+        console.log("✓ Implementation is initialized");
       }
     } catch (error) {
       console.log("⚠ Could not check implementation state");
