@@ -432,6 +432,14 @@ const config: HardhatUserConfig = {
           apiURL: "https://astar.blockscout.com/api",
           browserURL: "https://soneium.blockscout.com"
         }
+      },
+      {
+        network: "hemi",
+        chainId: 43111,
+        urls: {
+          apiURL: "https://explorer.hemi.xyz/api/v2",
+          browserURL: "https://explorer.hemi.xyz/"
+        }
       }
     ]
   },
