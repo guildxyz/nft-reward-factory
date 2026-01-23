@@ -229,6 +229,11 @@ const config: HardhatUserConfig = {
       url: "https://rpc-mainnet.monadinfra.com/rpc/<ADD_TOKEN>",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
+    },
+    hemi: {
+      url: "https://hemi.drpc.org",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
     }
   },
   gasReporter: {

@@ -69,6 +69,7 @@ Networks can be configured in _[hardhat.config.ts](hardhat.config.ts)_. We've pr
 - `world` (World Chain Mainnet)
 - `astar` (Astar EVM)
 - `monad` (Monad)
+- `hemi` (Hemi)
 
 ## Verification
 
