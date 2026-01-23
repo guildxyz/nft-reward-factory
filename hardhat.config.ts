@@ -224,6 +224,11 @@ const config: HardhatUserConfig = {
       url: "https://evm.astar.network",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
+    },
+    monad: {
+      url: "https://rpc-mainnet.monadinfra.com/rpc/<ADD_TOKEN>",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
     }
   },
   gasReporter: {
@@ -265,7 +270,8 @@ const config: HardhatUserConfig = {
       xdc: process.env.XDCSCAN_API_KEY || "",
       soneium: "soneium",
       world: process.env.WORLDSCAN_API_KEY || "",
-      astar: process.env.ASTAR_API_KEY || ""
+      astar: process.env.ASTAR_API_KEY || "",
+      monad: process.env.MONAD_API_KEY || ""
     },
     customChains: [
       {
@@ -409,6 +415,14 @@ const config: HardhatUserConfig = {
       {
         network: "astar",
         chainId: 592,
+        urls: {
+          apiURL: "https://astar.blockscout.com/api",
+          browserURL: "https://soneium.blockscout.com"
+        }
+      },
+      {
+        network: "monad",
+        chainId: 143,
         urls: {
           apiURL: "https://astar.blockscout.com/api",
           browserURL: "https://soneium.blockscout.com"

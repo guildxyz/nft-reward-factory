@@ -68,6 +68,7 @@ Networks can be configured in _[hardhat.config.ts](hardhat.config.ts)_. We've pr
 - `soneium` (Soneium Mainnet)
 - `world` (World Chain Mainnet)
 - `astar` (Astar EVM)
+- `monad` (Monad)
 
 ## Verification
 
