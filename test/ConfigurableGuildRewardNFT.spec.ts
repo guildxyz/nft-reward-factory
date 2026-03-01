@@ -5,6 +5,7 @@ import { ethers, upgrades } from "hardhat";
 
 // NFT CONFIG (without owner & treasury)
 const sampleCids = ["QmPaZD7i8TpLEeGjHtGoXe4mPKbRNNt8YTHH5nrKoqz9wJ", "QmcaGypWsmzaSQQGuExUjtyTRvZ2FF525Ww6PBNWWgkkLj"];
+const sampleBaseUrl = "https://nft.xyz/metadata";
 const baseNFTConfig = {
   name: "Guild NFT",
   symbol: "GUILDNFT",
@@ -73,9 +74,9 @@ describe("ConfigurableGuildRewardNFT", () => {
 
   beforeEach("deploy contract", async () => {
     GuildRewardNFTFactory = await ethers.getContractFactory("GuildRewardNFTFactory");
-    factory = await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, fee, signer.address], {
+    factory = (await upgrades.deployProxy(GuildRewardNFTFactory, [treasury.address, fee, signer.address], {
       kind: "uups"
-    });
+    })) as Contract;
     await factory.waitForDeployment();
 
     ConfigurableGuildRewardNFT = await ethers.getContractFactory("ConfigurableGuildRewardNFT");
@@ -619,6 +620,19 @@ describe("ConfigurableGuildRewardNFT", () => {
         const tokenURI = await nft.tokenURI(0);
         const regex = new RegExp(`ipfs://${nftConfig.cid}`);
         expect(regex.test(tokenURI)).to.eq(true);
+      });
+
+      it("should return the correct tokenURI for an url", async () => {
+        await nft.claim(sampleAmount, wallet0.address, sampleUserId, sampleSignedAt, signature, {
+          value: fee + nftConfig.tokenFee
+        });
+
+        const sampleUrl = `${sampleBaseUrl}/${(await nft.getAddress()).toLowerCase()}/${wallet0.address.toLowerCase()}/${0}`;
+        console.log(sampleUrl);
+
+        await nft.updateTokenURI(sampleBaseUrl);
+        const tokenURI = await nft.tokenURI(0);
+        expect(tokenURI).to.eq(sampleUrl);
       });
     });
 

@@ -110,12 +110,12 @@ const config: HardhatUserConfig = {
       zksync: false
     },
     cyber: {
-      url: "https://cyber.alt.technology",
+      url: "https://rpc.cyber.co",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
     taiko: {
-      url: "https://taiko.blockpi.network/v1/rpc/public",
+      url: "https://taiko-rpc.publicnode.com",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       zksync: false
     },
@@ -204,6 +204,26 @@ const config: HardhatUserConfig = {
       ethNetwork: "mainnet",
       verifyURL: "https://explorer-api.zero.network/verification/contract_verification",
       zksync: true
+    },
+    xdc: {
+      url: "https://erpc.xinfin.network",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    soneium: {
+      url: "https://rpc.soneium.org",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    world: {
+      url: "https://worldchain-mainnet.g.alchemy.com/public",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
+    },
+    astar: {
+      url: "https://evm.astar.network",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      zksync: false
     }
   },
   gasReporter: {
@@ -241,7 +261,11 @@ const config: HardhatUserConfig = {
       form: "form",
       ink: "ink",
       iota: "iota",
-      sonic: process.env.SONICSCAN_API_KEY || ""
+      sonic: process.env.SONICSCAN_API_KEY || "",
+      xdc: process.env.XDCSCAN_API_KEY || "",
+      soneium: "soneium",
+      world: process.env.WORLDSCAN_API_KEY || "",
+      astar: process.env.ASTAR_API_KEY || ""
     },
     customChains: [
       {
@@ -263,6 +287,8 @@ const config: HardhatUserConfig = {
         network: "taiko",
         chainId: 167000,
         urls: { apiURL: "https://api.taikoscan.io/api", browserURL: "https://taikoscan.io" }
+        // If you want to use the blockscout api, use the following:
+        // urls: { apiURL: "https://blockscoutapi.mainnet.taiko.xyz/api", browserURL: "https://blockscout.mainnet.taiko.xyz" }
       },
       {
         network: "blast",
@@ -360,6 +386,32 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.sonicscan.org/api",
           browserURL: "https://sonicscan.org"
+        }
+      },
+      {
+        network: "xdc",
+        chainId: 50,
+        urls: {
+          apiURL: "https://api.xdcscan.com/api",
+          browserURL: "https://xdcscan.com"
+        }
+      },
+      {
+        network: "soneium",
+        chainId: 1868,
+        urls: { apiURL: "https://soneium.blockscout.com/api", browserURL: "https://soneium.blockscout.com" }
+      },
+      {
+        network: "world",
+        chainId: 480,
+        urls: { apiURL: "https://api.worldscan.org/api", browserURL: "https://worldscan.org" }
+      },
+      {
+        network: "astar",
+        chainId: 592,
+        urls: {
+          apiURL: "https://astar.blockscout.com/api",
+          browserURL: "https://soneium.blockscout.com"
         }
       }
     ]

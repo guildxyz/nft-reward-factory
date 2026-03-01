@@ -11,6 +11,7 @@ import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/O
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ECDSAUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import { MulticallUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/MulticallUpgradeable.sol";
+import { StringsUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
 /// @title An NFT distributed as a reward for Guild.xyz users.
 contract ConfigurableGuildRewardNFT is
@@ -23,6 +24,8 @@ contract ConfigurableGuildRewardNFT is
 {
     using ECDSAUpgradeable for bytes32;
     using LibTransfer for address payable;
+    using StringsUpgradeable for address;
+    using StringsUpgradeable for uint256;
 
     uint256 public constant SIGNATURE_VALIDITY = 1 hours;
 
@@ -145,6 +148,22 @@ contract ConfigurableGuildRewardNFT is
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         if (!_exists(tokenId)) revert NonExistentToken(tokenId);
+
+        bytes memory cidBytes = bytes(cid);
+        if (
+            cidBytes.length >= 4 && cidBytes[0] == "h" && cidBytes[1] == "t" && cidBytes[2] == "t" && cidBytes[3] == "p"
+        ) {
+            return
+                string.concat(
+                    cid,
+                    "/",
+                    address(this).toHexString(),
+                    "/",
+                    _ownerOf(tokenId).toHexString(),
+                    "/",
+                    tokenId.toString()
+                );
+        }
 
         return string.concat("ipfs://", cid);
     }
